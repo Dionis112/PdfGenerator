@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>XML to PDF orchestration and engine-independent contracts.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="/" />
+    <ProjectReference Include="../PdfGenerator.Domain/PdfGenerator.Domain.csproj" />
+  </ItemGroup>
+</Project>

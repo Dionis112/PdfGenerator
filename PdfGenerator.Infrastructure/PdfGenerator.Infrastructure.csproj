@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Company.XmlFo</PackageId>
+    <Description>XML and XSLT 2.0 to PDF with bundled Apache FOP, IKVM, fonts and PNG ICC cleanup.</Description>
+    <PackageTags>xml;xslt;xsl-fo;pdf;fop;ikvm;png</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <MavenDefaultRepositories>central=https://repo.maven.apache.org/maven2/</MavenDefaultRepositories>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);PackFopAssemblies</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="/" />
+    <None Include="../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="/" />
+    <PackageReference Include="SaxonCS-HE" />
+    <PackageReference Include="IKVM" />
+    <PackageReference Include="IKVM.Maven.Sdk" PrivateAssets="all" />
+    <MavenReference Include="org.apache.xmlgraphics:fop" Version="2.11" />
+    <EmbeddedResource Include="Resources/Fonts/**/*" LogicalName="Company.XmlFo.Resources.Fonts.%(Filename)%(Extension)" />
+    <None Include="Resources/Native/linux-x64/*" Pack="true" PackagePath="runtimes/linux-x64/native/" CopyToOutputDirectory="PreserveNewest" TargetPath="runtimes/linux-x64/native/%(Filename)%(Extension)" />
+    <None Include="Resources/Licenses/**/*" Pack="true" PackagePath="licenses/" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <ProjectReference Include="../PdfGenerator.Application/PdfGenerator.Application.csproj" />
+  </ItemGroup>
+  <Target Name="PackFopAssemblies" DependsOnTargets="CompileIkvmReferences">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(IkvmReferenceItem-&gt;'%(CachePath)')" />
+    </ItemGroup>
+  </Target>
+  <Target Name="RemoveBundledMavenModel" AfterTargets="GetMavenProjectModelPackageFile">
+    <!-- Consumers receive compiled assemblies, including when they already use Maven SDK. -->
+    <ItemGroup>
+      <TfmSpecificPackageFile Remove="$(IntermediateOutputPath)$(PackageId).pom" />
+    </ItemGroup>
+  </Target>
+</Project>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Company.XmlFo" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../test-data/PngFixture.cs" Link="Fixtures/PngFixture.cs" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<document>
+  <title>Проверка преобразования XML → FO</title>
+  <items>
+    <item category="A" amount="10.50">Первый товар</item>
+    <item category="B" amount="20.00">Второй товар</item>
+    <item category="A" amount="5.25">Третий товар</item>
+  </items>
+</document>

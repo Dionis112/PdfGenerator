@@ -1,0 +1,9 @@
+.git
+**/bin
+**/obj
+artifacts
+TestResults
+.vs
+.idea
+**/*.user
+**/*.log
