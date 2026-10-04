@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Company.XmlFo</PackageId>
+    <OutputType>Exe</OutputType>
+    <UseAppHost>false</UseAppHost>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <PackageId>PdfGenerator</PackageId>
     <Description>XML and XSLT 2.0 to PDF with bundled Apache FOP, IKVM, fonts and PNG ICC cleanup.</Description>
     <PackageTags>xml;xslt;xsl-fo;pdf;fop;ikvm;png</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -8,13 +11,15 @@
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);PackFopAssemblies</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
   <ItemGroup>
+    <None Update="buildTransitive/*" Pack="true" PackagePath="buildTransitive/%(Filename)%(Extension)" />
+    <None Include="bin/$(Configuration)/net8.0/PdfGenerator.Infrastructure.deps.json" Pack="true" PackagePath="buildTransitive/worker.deps.json" Visible="false" />
     <None Include="../README.md" Pack="true" PackagePath="/" />
     <None Include="../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="/" />
     <PackageReference Include="SaxonCS-HE" />
     <PackageReference Include="IKVM" />
     <PackageReference Include="IKVM.Maven.Sdk" PrivateAssets="all" />
     <MavenReference Include="org.apache.xmlgraphics:fop" Version="2.11" />
-    <EmbeddedResource Include="Resources/Fonts/**/*" LogicalName="Company.XmlFo.Resources.Fonts.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Resources/Fonts/**/*" LogicalName="PdfGenerator.Resources.Fonts.%(Filename)%(Extension)" />
     <None Include="Resources/Native/linux-x64/*" Pack="true" PackagePath="runtimes/linux-x64/native/" CopyToOutputDirectory="PreserveNewest" TargetPath="runtimes/linux-x64/native/%(Filename)%(Extension)" />
     <None Include="Resources/Licenses/**/*" Pack="true" PackagePath="licenses/" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />

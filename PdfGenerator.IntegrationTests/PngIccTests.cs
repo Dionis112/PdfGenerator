@@ -1,16 +1,37 @@
 using System.Buffers.Binary;
 using System.Xml.Linq;
-using Company.XmlFo;
 using PdfGenerator.TestData;
 using Xunit;
 
 namespace PdfGenerator.IntegrationTests;
 
+
+/// <summary>
+/// <para>Runs the PngIccTests validation scenario.</para>
+/// <para>Выполняет проверку сценария PngIccTests.</para>
+/// </summary>
 public sealed class PngIccTests : IDisposable
 {
+
+    /// <summary>
+    /// <para>Runs the directory validation scenario.</para>
+    /// <para>Выполняет проверку сценария directory.</para>
+    /// </summary>
     private readonly string directory = Path.Combine(Path.GetTempPath(), "png-icc-tests-" + Guid.NewGuid().ToString("N"));
+
+    /// <summary>
+    /// <para>Runs the PngIccTests validation scenario.</para>
+    /// <para>Выполняет проверку сценария PngIccTests.</para>
+    /// </summary>
+    /// <exception cref="ArgumentException"><para>An argument violates the documented contract.</para><para>Аргумент нарушает описанный контракт.</para></exception>
     public PngIccTests() => Directory.CreateDirectory(directory);
 
+
+    /// <summary>
+    /// <para>Runs the RemovesProfileIncludingBadCrcAndKeepsAllOtherBytes validation scenario.</para>
+    /// <para>Выполняет проверку сценария RemovesProfileIncludingBadCrcAndKeepsAllOtherBytes.</para>
+    /// </summary>
+    /// <param name="badCrc"><para>The badCrc argument.</para><para>Аргумент badCrc.</para></param>
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -19,6 +40,11 @@ public sealed class PngIccTests : IDisposable
         Assert.Equal(PngFixture.Create(false), PngIccProfileRemover.RemoveIccProfile(PngFixture.Create(true, badCrc)));
     }
 
+
+    /// <summary>
+    /// <para>Runs the ImageWithoutProfileRemainsByteIdentical validation scenario.</para>
+    /// <para>Выполняет проверку сценария ImageWithoutProfileRemainsByteIdentical.</para>
+    /// </summary>
     [Fact]
     public void ImageWithoutProfileRemainsByteIdentical()
     {
@@ -26,6 +52,11 @@ public sealed class PngIccTests : IDisposable
         Assert.Equal(png, PngIccProfileRemover.RemoveIccProfile(png));
     }
 
+
+    /// <summary>
+    /// <para>Runs the RejectsTruncationOverflowMissingEndAndCorruptPixelChunk validation scenario.</para>
+    /// <para>Выполняет проверку сценария RejectsTruncationOverflowMissingEndAndCorruptPixelChunk.</para>
+    /// </summary>
     [Fact]
     public void RejectsTruncationOverflowMissingEndAndCorruptPixelChunk()
     {
@@ -40,6 +71,13 @@ public sealed class PngIccTests : IDisposable
         Assert.Throws<InvalidDataException>(() => PngIccProfileRemover.RemoveIccProfile(corrupt));
     }
 
+
+    /// <summary>
+    /// <para>Runs the PreparesCopiesAndKeepsOriginalFoAndPng validation scenario.</para>
+    /// <para>Выполняет проверку сценария PreparesCopiesAndKeepsOriginalFoAndPng.</para>
+    /// </summary>
+    /// <param name="kind"><para>The kind argument.</para><para>Аргумент kind.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Theory]
     [InlineData("local")]
     [InlineData("base64")]
@@ -73,6 +111,12 @@ public sealed class PngIccTests : IDisposable
         Assert.Empty(Directory.GetDirectories(directory));
     }
 
+
+    /// <summary>
+    /// <para>Runs the HonorsXmlBaseAndProcessesBackgroundAndInlineSvg validation scenario.</para>
+    /// <para>Выполняет проверку сценария HonorsXmlBaseAndProcessesBackgroundAndInlineSvg.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task HonorsXmlBaseAndProcessesBackgroundAndInlineSvg()
     {
@@ -89,6 +133,12 @@ public sealed class PngIccTests : IDisposable
         }
     }
 
+
+    /// <summary>
+    /// <para>Runs the InvalidImagePreservesPreviousPdfAndCleansPreparation validation scenario.</para>
+    /// <para>Выполняет проверку сценария InvalidImagePreservesPreviousPdfAndCleansPreparation.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task InvalidImagePreservesPreviousPdfAndCleansPreparation()
     {
@@ -106,6 +156,12 @@ public sealed class PngIccTests : IDisposable
         Assert.Empty(Directory.GetDirectories(directory));
     }
 
+
+    /// <summary>
+    /// <para>Runs the LimitAndRemoteImageFailuresCleanPreparation validation scenario.</para>
+    /// <para>Выполняет проверку сценария LimitAndRemoteImageFailuresCleanPreparation.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task LimitAndRemoteImageFailuresCleanPreparation()
     {
@@ -115,6 +171,13 @@ public sealed class PngIccTests : IDisposable
         Assert.Empty(Directory.GetDirectories(directory));
     }
 
+
+    /// <summary>
+    /// <para>Runs the WriteFo validation scenario.</para>
+    /// <para>Выполняет проверку сценария WriteFo.</para>
+    /// </summary>
+    /// <param name="source"><para>The source argument.</para><para>Аргумент source.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     private string WriteFo(string source)
     {
         XNamespace fo = "http://www.w3.org/1999/XSL/Format";
@@ -123,5 +186,10 @@ public sealed class PngIccTests : IDisposable
         return path;
     }
 
+
+    /// <summary>
+    /// <para>Runs the Dispose validation scenario.</para>
+    /// <para>Выполняет проверку сценария Dispose.</para>
+    /// </summary>
     public void Dispose() => Directory.Delete(directory, recursive: true);
 }

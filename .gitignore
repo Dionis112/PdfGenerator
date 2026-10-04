@@ -1,14 +1,41 @@
-**/bin/
-**/obj/
-.vs/
-.idea/
-TestResults/
-artifacts/
-*.user
-*.suo
+# Build output and local package feeds
+**/[Bb]in/
+**/[Oo]bj/
+/artifacts/
 *.nupkg
 *.snupkg
-*.log
+
+# IDE and per-user settings
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Test, coverage and diagnostic output
+**/TestResults/
 coverage/
+*.log
+*.binlog
+*.trx
+*.coverage
+*.coveragexml
+*.dmp
+
+# Local credentials and configuration
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.key
+
+# Python helpers and operating system files
+__pycache__/
+*.py[cod]
+.venv/
 .DS_Store
 Thumbs.db
+Desktop.ini

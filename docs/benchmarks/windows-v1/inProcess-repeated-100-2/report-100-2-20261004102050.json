@@ -1,0 +1,222 @@
+{
+  "dateUtc": "2026-10-04T10:20:50.1698979+00:00",
+  "scenario": "repeated",
+  "mode": "inProcess",
+  "templateCache": {
+    "Hits": 7,
+    "Misses": 1,
+    "Compilations": 1,
+    "Evictions": 0,
+    "Entries": 1,
+    "EstimatedBytes": 540480
+  },
+  "fopCache": {
+    "Hits": 7,
+    "Misses": 1,
+    "Evictions": 0,
+    "Entries": 1,
+    "EstimatedBytes": 5713744
+  },
+  "workerPool": null,
+  "framework": ".NET 8.0.31",
+  "os": "Microsoft Windows 10.0.26100",
+  "architecture": "X64",
+  "processors": 16,
+  "memoryAvailable": 68653494272,
+  "saxon": "13.0.0.0",
+  "inputBytes": 100514019,
+  "sizeMiB": 100,
+  "concurrency": 2,
+  "iterations": 4,
+  "peakWorkingSet": 756961280,
+  "peakManagedHeap": 579412944,
+  "peakTemporary": 256796,
+  "allocatedBytes": 9129728032,
+  "gcCounts": [
+    881,
+    217,
+    14
+  ],
+  "elapsedMs": 23447.6447,
+  "documentsPerMinute": 20.47113891194131,
+  "p50Ms": 4075.1914,
+  "p95Ms": 11305.706,
+  "measurements": [
+    {
+      "round": 0,
+      "PageCount": 9,
+      "PdfBytes": 30730,
+      "StageDurations": {
+        "input": "00:00:00.2306582",
+        "snapshot": "00:00:00.0403853",
+        "compile": "00:00:00.6316214",
+        "transform": "00:00:03.7928619",
+        "render": "00:00:06.5920466",
+        "foPreparation": "00:00:00.1349603",
+        "factory": "00:00:01.2701077",
+        "fop": "00:00:03.6977856",
+        "publish": "00:00:00.0042052"
+      },
+      "queueMs": 0.256,
+      "preparationMs": 230.6582,
+      "transformMs": 4711.9887,
+      "renderMs": 6592.0466,
+      "publishMs": 1.5383,
+      "totalMs": 11305.706
+    },
+    {
+      "round": 0,
+      "PageCount": 9,
+      "PdfBytes": 30730,
+      "StageDurations": {
+        "input": "00:00:00.2210891",
+        "snapshot": "00:00:00.0401922",
+        "compile": "00:00:00.6319396",
+        "transform": "00:00:03.7962985",
+        "render": "00:00:06.5810021",
+        "foPreparation": "00:00:00.1263580",
+        "factory": "00:00:01.2686912",
+        "fop": "00:00:03.6992013",
+        "publish": "00:00:00.0038028"
+      },
+      "queueMs": 0.003,
+      "preparationMs": 221.0891,
+      "transformMs": 4710.9305,
+      "renderMs": 6581.0021,
+      "publishMs": 1.7164,
+      "totalMs": 11293.825
+    },
+    {
+      "round": 1,
+      "PageCount": 9,
+      "PdfBytes": 30730,
+      "StageDurations": {
+        "input": "00:00:00.2167381",
+        "snapshot": "00:00:00.0039909",
+        "compile": "00:00:00.0020274",
+        "transform": "00:00:02.3916775",
+        "render": "00:00:01.4100922",
+        "foPreparation": "00:00:00.1575222",
+        "factory": "00:00:00.0119262",
+        "fop": "00:00:01.2345347",
+        "publish": "00:00:00.0015637"
+      },
+      "queueMs": 0.0028,
+      "preparationMs": 216.7381,
+      "transformMs": 2628.2619,
+      "renderMs": 1410.0922,
+      "publishMs": 1.5155,
+      "totalMs": 4039.9641
+    },
+    {
+      "round": 1,
+      "PageCount": 9,
+      "PdfBytes": 30730,
+      "StageDurations": {
+        "input": "00:00:00.2154195",
+        "snapshot": "00:00:00.0040859",
+        "compile": "00:00:00.0012067",
+        "transform": "00:00:02.3929563",
+        "render": "00:00:01.4414228",
+        "foPreparation": "00:00:00.1516584",
+        "factory": "00:00:00.0118230",
+        "fop": "00:00:01.2723714",
+        "publish": "00:00:00.0016428"
+      },
+      "queueMs": 0.0015,
+      "preparationMs": 215.4195,
+      "transformMs": 2641.3173,
+      "renderMs": 1441.4228,
+      "publishMs": 1.6319,
+      "totalMs": 4084.4668
+    },
+    {
+      "round": 2,
+      "PageCount": 9,
+      "PdfBytes": 30730,
+      "StageDurations": {
+        "input": "00:00:00.1990702",
+        "snapshot": "00:00:00.0037704",
+        "compile": "00:00:00.0010037",
+        "transform": "00:00:02.5094821",
+        "render": "00:00:01.1441780",
+        "foPreparation": "00:00:00.1087235",
+        "factory": "00:00:00.0115030",
+        "fop": "00:00:01.0177325",
+        "publish": "00:00:00.0014638"
+      },
+      "queueMs": 0.0025,
+      "preparationMs": 199.0702,
+      "transformMs": 2731.2578,
+      "renderMs": 1144.178,
+      "publishMs": 1.4374,
+      "totalMs": 3876.9709
+    },
+    {
+      "round": 2,
+      "PageCount": 9,
+      "PdfBytes": 30730,
+      "StageDurations": {
+        "input": "00:00:00.2015968",
+        "snapshot": "00:00:00.0038694",
+        "compile": "00:00:00.0010525",
+        "transform": "00:00:02.4987568",
+        "render": "00:00:01.1003254",
+        "foPreparation": "00:00:00.1076529",
+        "factory": "00:00:00.0118408",
+        "fop": "00:00:00.9750431",
+        "publish": "00:00:00.0015422"
+      },
+      "queueMs": 0.0015,
+      "preparationMs": 201.5968,
+      "transformMs": 2717.8255,
+      "renderMs": 1100.3254,
+      "publishMs": 1.5331,
+      "totalMs": 3819.7905
+    },
+    {
+      "round": 3,
+      "PageCount": 9,
+      "PdfBytes": 30730,
+      "StageDurations": {
+        "input": "00:00:00.2176870",
+        "snapshot": "00:00:00.0040629",
+        "compile": "00:00:00.0016106",
+        "transform": "00:00:02.4978419",
+        "render": "00:00:01.3393565",
+        "foPreparation": "00:00:00.1102072",
+        "factory": "00:00:00.0130371",
+        "fop": "00:00:01.2096619",
+        "publish": "00:00:00.0014666"
+      },
+      "queueMs": 0.0027,
+      "preparationMs": 217.687,
+      "transformMs": 2734.2332,
+      "renderMs": 1339.3565,
+      "publishMs": 1.4571,
+      "totalMs": 4075.1914
+    },
+    {
+      "round": 3,
+      "PageCount": 9,
+      "PdfBytes": 30730,
+      "StageDurations": {
+        "input": "00:00:00.2164668",
+        "snapshot": "00:00:00.0039398",
+        "compile": "00:00:00.0010517",
+        "transform": "00:00:02.5061318",
+        "render": "00:00:01.3833649",
+        "foPreparation": "00:00:00.1081370",
+        "factory": "00:00:00.0132497",
+        "fop": "00:00:01.2565194",
+        "publish": "00:00:00.0015611"
+      },
+      "queueMs": 0.0018,
+      "preparationMs": 216.4668,
+      "transformMs": 2746.5805,
+      "renderMs": 1383.3649,
+      "publishMs": 1.5525,
+      "totalMs": 4131.5904
+    }
+  ]
+}

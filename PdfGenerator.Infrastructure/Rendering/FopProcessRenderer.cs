@@ -1,16 +1,40 @@
 using System.Diagnostics;
 
-namespace Company.XmlFo;
+namespace PdfGenerator;
 
-/// <summary>Runs an externally installed Apache FOP. Only trusted FO and FOP configuration are supported.</summary>
+
+/// <summary>
+/// <para>Provides the FopProcessRenderer contract or implementation for PDF conversion.</para>
+/// <para>Предоставляет контракт или реализацию FopProcessRenderer для преобразования PDF.</para>
+/// </summary>
 public sealed class FopProcessRenderer : IFoPdfRenderer, IDisposable
 {
+
+    /// <summary>
+    /// <para>Gets or defines the options value used by FopProcessRenderer.</para>
+    /// <para>Возвращает или определяет значение options, используемое FopProcessRenderer.</para>
+    /// </summary>
     private readonly FopOptions options;
+
+    /// <summary>
+    /// <para>Gets or defines the slots value used by FopProcessRenderer.</para>
+    /// <para>Возвращает или определяет значение slots, используемое FopProcessRenderer.</para>
+    /// </summary>
     private readonly SemaphoreSlim slots;
 
+
+    /// <summary>
+    /// <para>Initializes FopProcessRenderer with an immutable snapshot of service settings.</para>
+    /// <para>Создаёт FopProcessRenderer со снимком настроек сервиса.</para>
+    /// </summary>
+    /// <param name="options"><para>Immutable configuration snapshot for this service or job.</para><para>Неизменяемый снимок конфигурации сервиса или задания.</para></param>
+    /// <exception cref="ArgumentException"><para>An argument violates the documented contract.</para><para>Аргумент нарушает описанный контракт.</para></exception>
     public FopProcessRenderer(FopOptions? options = null)
     {
-        this.options = options ?? new();
+        this.options = options is null ? new() : options with
+        {
+            PrefixArguments = Array.AsReadOnly(options.PrefixArguments.ToArray())
+        };
         if (this.options.Timeout <= TimeSpan.Zero || this.options.MaxConcurrency <= 0 || this.options.MaxPdfBytes <= 0 || this.options.MaxFoBytes <= 0 || this.options.MaxImageBytes <= 0 || this.options.MaxImageBytes > int.MaxValue)
         {
             throw new ArgumentOutOfRangeException(nameof(options));
@@ -19,6 +43,17 @@ public sealed class FopProcessRenderer : IFoPdfRenderer, IDisposable
         slots = new(this.options.MaxConcurrency);
     }
 
+
+    /// <summary>
+    /// <para>Prepares local image snapshots, renders a complete PDF and checks cancellation before atomic file publication.</para>
+    /// <para>Подготавливает локальные снимки изображений, рендерит готовый PDF и проверяет отмену перед атомарной публикацией файла.</para>
+    /// </summary>
+    /// <param name="foPath"><para>The foPath argument.</para><para>Аргумент foPath.</para></param>
+    /// <param name="pdfPath"><para>PDF destination, atomically replaced only after successful rendering.</para><para>Путь PDF, атомарно заменяемый после успешного рендеринга.</para></param>
+    /// <param name="cancellationToken"><para>Cancellation token; synchronous in-process engines finish before their slot is released.</para><para>Токен отмены; синхронный движок внутри процесса завершает работу до освобождения слота.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
+    /// <exception cref="OperationCanceledException"><para>The supplied cancellation token is canceled.</para><para>Переданный токен отмены отменён.</para></exception>
+    /// <exception cref="ArgumentException"><para>An argument violates the documented contract.</para><para>Аргумент нарушает описанный контракт.</para></exception>
     public async Task RenderFileAsync(string foPath, string pdfPath, CancellationToken cancellationToken = default)
     {
         await slots.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -98,6 +133,7 @@ public sealed class FopProcessRenderer : IFoPdfRenderer, IDisposable
                 }
             }
             stage = ConversionStage.Publish;
+            images.Dispose();
             AtomicOutput.Publish(temporary, pdfPath, cancellationToken);
         }
         catch (OperationCanceledException)
@@ -119,5 +155,10 @@ public sealed class FopProcessRenderer : IFoPdfRenderer, IDisposable
         }
     }
 
+
+    /// <summary>
+    /// <para>Releases owned resources; caller-owned input and output streams are not closed.</para>
+    /// <para>Освобождает принадлежащие объекту ресурсы; входные и выходные потоки вызывающего кода не закрываются.</para>
+    /// </summary>
     public void Dispose() => slots.Dispose();
 }

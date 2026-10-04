@@ -1,19 +1,48 @@
 using System.Xml.Linq;
-using Company.XmlFo;
 using Xunit;
 
 namespace PdfGenerator.IntegrationTests;
 
+
+/// <summary>
+/// <para>Runs the ConversionTests validation scenario.</para>
+/// <para>Выполняет проверку сценария ConversionTests.</para>
+/// </summary>
 public sealed class ConversionTests : IDisposable
 {
+
+    /// <summary>
+    /// <para>Runs the directory validation scenario.</para>
+    /// <para>Выполняет проверку сценария directory.</para>
+    /// </summary>
     private readonly string directory = Path.Combine(Path.GetTempPath(), "xmlfo-tests-" + Guid.NewGuid().ToString("N"));
+
+    /// <summary>
+    /// <para>Runs the Fixture validation scenario.</para>
+    /// <para>Выполняет проверку сценария Fixture.</para>
+    /// </summary>
+    /// <param name="name"><para>The name argument.</para><para>Аргумент name.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     private static string Fixture(string name) => Path.Combine(AppContext.BaseDirectory, "test-data/basic", name);
+
+    /// <summary>
+    /// <para>Runs the Output validation scenario.</para>
+    /// <para>Выполняет проверку сценария Output.</para>
+    /// </summary>
+    /// <param name="name"><para>The name argument.</para><para>Аргумент name.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     private string Output(string name = "result.fo")
     {
         Directory.CreateDirectory(directory);
         return Path.Combine(directory, name);
     }
 
+
+    /// <summary>
+    /// <para>Runs the Xslt2IncludesAndCyrillicMatchExpected validation scenario.</para>
+    /// <para>Выполняет проверку сценария Xslt2IncludesAndCyrillicMatchExpected.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task Xslt2IncludesAndCyrillicMatchExpected()
     {
@@ -23,6 +52,12 @@ public sealed class ConversionTests : IDisposable
         Assert.True(XNode.DeepEquals(XDocument.Load(Fixture("expected.fo")).Root, XDocument.Load(target).Root));
     }
 
+
+    /// <summary>
+    /// <para>Runs the EmptyDataProducesTitle validation scenario.</para>
+    /// <para>Выполняет проверку сценария EmptyDataProducesTitle.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task EmptyDataProducesTitle()
     {
@@ -33,6 +68,13 @@ public sealed class ConversionTests : IDisposable
         Assert.DoesNotContain("Категория", File.ReadAllText(target));
     }
 
+
+    /// <summary>
+    /// <para>Runs the FailedInputPreservesPreviousFile validation scenario.</para>
+    /// <para>Выполняет проверку сценария FailedInputPreservesPreviousFile.</para>
+    /// </summary>
+    /// <param name="fixture"><para>The fixture argument.</para><para>Аргумент fixture.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Theory]
     [InlineData("invalid.xml")]
     [InlineData("missing.xml")]
@@ -46,6 +88,12 @@ public sealed class ConversionTests : IDisposable
         Assert.Single(Directory.GetFiles(directory));
     }
 
+
+    /// <summary>
+    /// <para>Runs the ParallelJobsDoNotMixInputs validation scenario.</para>
+    /// <para>Выполняет проверку сценария ParallelJobsDoNotMixInputs.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task ParallelJobsDoNotMixInputs()
     {
@@ -58,6 +106,12 @@ public sealed class ConversionTests : IDisposable
         }));
     }
 
+
+    /// <summary>
+    /// <para>Runs the CancellationBeforeStartDoesNotPublish validation scenario.</para>
+    /// <para>Выполняет проверку сценария CancellationBeforeStartDoesNotPublish.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task CancellationBeforeStartDoesNotPublish()
     {
@@ -68,6 +122,13 @@ public sealed class ConversionTests : IDisposable
         Assert.Equal("previous", File.ReadAllText(target));
     }
 
+
+    /// <summary>
+    /// <para>Runs the DtdAndEmptyDocumentRejected validation scenario.</para>
+    /// <para>Выполняет проверку сценария DtdAndEmptyDocumentRejected.</para>
+    /// </summary>
+    /// <param name="xml"><para>The xml argument.</para><para>Аргумент xml.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Theory]
     [InlineData("<!DOCTYPE document [<!ENTITY a SYSTEM 'file:///etc/passwd'>]><document>&a;</document>")]
     [InlineData("")]
@@ -80,6 +141,13 @@ public sealed class ConversionTests : IDisposable
         Assert.False(File.Exists(Output()));
     }
 
+
+    /// <summary>
+    /// <para>Runs the RuntimeResourcesAndSecondaryOutputsRejected validation scenario.</para>
+    /// <para>Выполняет проверку сценария RuntimeResourcesAndSecondaryOutputsRejected.</para>
+    /// </summary>
+    /// <param name="body"><para>The body argument.</para><para>Аргумент body.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Theory]
     [InlineData("<xsl:value-of select=\"doc('https://example.com/private.xml')\"/>")]
     [InlineData("<xsl:value-of select=\"unparsed-text('file:///etc/passwd')\"/>")]
@@ -95,6 +163,13 @@ public sealed class ConversionTests : IDisposable
         Assert.False(File.Exists(Output("escape.xml")));
     }
 
+
+    /// <summary>
+    /// <para>Runs the UnsafeIncludesRejected validation scenario.</para>
+    /// <para>Выполняет проверку сценария UnsafeIncludesRejected.</para>
+    /// </summary>
+    /// <param name="href"><para>The href argument.</para><para>Аргумент href.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Theory]
     [InlineData("https://example.com/module.xsl")]
     [InlineData("../outside.xsl")]
@@ -106,6 +181,12 @@ public sealed class ConversionTests : IDisposable
         await Assert.ThrowsAsync<ConversionException>(() => transformer.TransformFileAsync(Fixture("input.xml"), xslt, Output()));
     }
 
+
+    /// <summary>
+    /// <para>Runs the BadStylesheetRejected validation scenario.</para>
+    /// <para>Выполняет проверку сценария BadStylesheetRejected.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task BadStylesheetRejected()
     {
@@ -116,6 +197,12 @@ public sealed class ConversionTests : IDisposable
         Assert.Equal(ConversionStage.Compile, error.Stage);
     }
 
+
+    /// <summary>
+    /// <para>Runs the MissingOutputDirectoryRejected validation scenario.</para>
+    /// <para>Выполняет проверку сценария MissingOutputDirectoryRejected.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task MissingOutputDirectoryRejected()
     {
@@ -123,6 +210,12 @@ public sealed class ConversionTests : IDisposable
         await Assert.ThrowsAsync<ConversionException>(() => transformer.TransformFileAsync(Fixture("input.xml"), Fixture("document.xsl"), Path.Combine(Output("missing"), "out.fo")));
     }
 
+
+    /// <summary>
+    /// <para>Runs the OutputAndInputLimitsPreservePreviousFile validation scenario.</para>
+    /// <para>Выполняет проверку сценария OutputAndInputLimitsPreservePreviousFile.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task OutputAndInputLimitsPreservePreviousFile()
     {
@@ -141,6 +234,12 @@ public sealed class ConversionTests : IDisposable
         Assert.Equal("previous", File.ReadAllText(target));
     }
 
+
+    /// <summary>
+    /// <para>Runs the RendererFailurePreservesPdfAndCleansIntermediateFo validation scenario.</para>
+    /// <para>Выполняет проверку сценария RendererFailurePreservesPdfAndCleansIntermediateFo.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task RendererFailurePreservesPdfAndCleansIntermediateFo()
     {
@@ -156,6 +255,12 @@ public sealed class ConversionTests : IDisposable
         Assert.Single(Directory.GetFiles(directory));
     }
 
+
+    /// <summary>
+    /// <para>Runs the ChangedIncludeUsedOnNextCall validation scenario.</para>
+    /// <para>Выполняет проверку сценария ChangedIncludeUsedOnNextCall.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task ChangedIncludeUsedOnNextCall()
     {
@@ -171,6 +276,13 @@ public sealed class ConversionTests : IDisposable
         }
     }
 
+
+    /// <summary>
+    /// <para>Runs the FopTimeoutAndCancellationPreserveOutput validation scenario.</para>
+    /// <para>Выполняет проверку сценария FopTimeoutAndCancellationPreserveOutput.</para>
+    /// </summary>
+    /// <param name="cancel"><para>The cancel argument.</para><para>Аргумент cancel.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -205,6 +317,12 @@ public sealed class ConversionTests : IDisposable
         Assert.Single(Directory.GetFiles(directory));
     }
 
+
+    /// <summary>
+    /// <para>Runs the DeterministicLargeInputTransforms validation scenario.</para>
+    /// <para>Выполняет проверку сценария DeterministicLargeInputTransforms.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task DeterministicLargeInputTransforms()
     {
@@ -218,6 +336,11 @@ public sealed class ConversionTests : IDisposable
         Assert.Contains("сумма 250.00", result.Root!.Value);
     }
 
+
+    /// <summary>
+    /// <para>Runs the Dispose validation scenario.</para>
+    /// <para>Выполняет проверку сценария Dispose.</para>
+    /// </summary>
     public void Dispose()
     {
         if (Directory.Exists(directory))

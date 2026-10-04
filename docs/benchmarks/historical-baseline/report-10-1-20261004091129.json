@@ -1,0 +1,55 @@
+{
+  "dateUtc": "2026-10-04T09:11:29.5506867+00:00",
+  "framework": ".NET 8.0.31",
+  "os": "Microsoft Windows 10.0.26100",
+  "architecture": "X64",
+  "processors": 16,
+  "memoryAvailable": 68653494272,
+  "saxon": "13.0.0.0",
+  "inputBytes": 10032384,
+  "sizeMiB": 10,
+  "concurrency": 1,
+  "iterations": 3,
+  "peakWorkingSet": 228585472,
+  "peakManagedHeap": 70934872,
+  "peakTemporary": 140761,
+  "allocatedBytes": 796326648,
+  "gcCounts": [
+    79,
+    26,
+    7
+  ],
+  "elapsedMs": 17559.0688,
+  "documentsPerMinute": 10.25111279673576,
+  "p50Ms": 1608.4131,
+  "p95Ms": 14549.3792,
+  "measurements": [
+    {
+      "round": 0,
+      "PageCount": 9,
+      "PdfBytes": 29953,
+      "transformMs": 2261.4543,
+      "renderMs": 12287.1459,
+      "publishMs": 0.6787,
+      "totalMs": 14549.3792
+    },
+    {
+      "round": 1,
+      "PageCount": 9,
+      "PdfBytes": 29953,
+      "transformMs": 603.7728,
+      "renderMs": 1003.9224,
+      "publishMs": 0.627,
+      "totalMs": 1608.4131
+    },
+    {
+      "round": 2,
+      "PageCount": 9,
+      "PdfBytes": 29953,
+      "transformMs": 528.8873,
+      "renderMs": 815.793,
+      "publishMs": 0.6148,
+      "totalMs": 1345.3858
+    }
+  ]
+}

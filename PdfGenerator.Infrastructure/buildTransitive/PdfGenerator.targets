@@ -1,0 +1,10 @@
+<Project>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)worker.runtimeconfig.json" Link="PdfGenerator.Infrastructure.runtimeconfig.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="$(MSBuildThisFileDirectory)worker.deps.json" Link="PdfGenerator.Infrastructure.deps.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="PdfGeneratorWorkerPublishedDependencies" AfterTargets="Publish" Condition="Exists('$(PublishDir)$(AssemblyName).deps.json')">
+    <!-- Publish flattens RID-specific IKVM assemblies. Use the consumer's resolved RID/dependency graph. -->
+    <Copy SourceFiles="$(PublishDir)$(AssemblyName).deps.json" DestinationFiles="$(PublishDir)PdfGenerator.Infrastructure.deps.json" />
+  </Target>
+</Project>

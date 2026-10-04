@@ -5,8 +5,21 @@ using System.Text;
 namespace PdfGenerator.TestData;
 
 // Deterministic red RGBA square, with an intentionally unusable ICC payload.
+
+/// <summary>
+/// <para>Provides the PngFixture contract or implementation for PDF conversion.</para>
+/// <para>Предоставляет контракт или реализацию PngFixture для преобразования PDF.</para>
+/// </summary>
 internal static class PngFixture
 {
+
+    /// <summary>
+    /// <para>Executes Create as part of the PngFixture conversion workflow.</para>
+    /// <para>Выполняет Create в цепочке преобразования PngFixture.</para>
+    /// </summary>
+    /// <param name="withIcc"><para>The withIcc argument.</para><para>Аргумент withIcc.</para></param>
+    /// <param name="badProfileCrc"><para>The badProfileCrc argument.</para><para>Аргумент badProfileCrc.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     public static byte[] Create(bool withIcc = true, bool badProfileCrc = false)
     {
         using var output = new MemoryStream();
@@ -38,6 +51,13 @@ internal static class PngFixture
         return output.ToArray();
     }
 
+
+    /// <summary>
+    /// <para>Executes Compress as part of the PngFixture conversion workflow.</para>
+    /// <para>Выполняет Compress в цепочке преобразования PngFixture.</para>
+    /// </summary>
+    /// <param name="data"><para>The data argument.</para><para>Аргумент data.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     private static byte[] Compress(byte[] data)
     {
         using var output = new MemoryStream();
@@ -49,6 +69,15 @@ internal static class PngFixture
         return output.ToArray();
     }
 
+
+    /// <summary>
+    /// <para>Executes Chunk as part of the PngFixture conversion workflow.</para>
+    /// <para>Выполняет Chunk в цепочке преобразования PngFixture.</para>
+    /// </summary>
+    /// <param name="output"><para>Output destination; caller-owned streams remain open and final copying is not atomic.</para><para>Выходное назначение; потоки вызывающего кода остаются открытыми, финальное копирование не атомарно.</para></param>
+    /// <param name="name"><para>The name argument.</para><para>Аргумент name.</para></param>
+    /// <param name="data"><para>The data argument.</para><para>Аргумент data.</para></param>
+    /// <param name="badCrc"><para>The badCrc argument.</para><para>Аргумент badCrc.</para></param>
     private static void Chunk(Stream output, string name, byte[] data, bool badCrc = false)
     {
         byte[] type = Encoding.ASCII.GetBytes(name);

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><IsPackable>false</IsPackable></PropertyGroup>
+  <ItemGroup><ProjectReference Include="../../PdfGenerator.Infrastructure/PdfGenerator.Infrastructure.csproj" /></ItemGroup>
+  <ItemGroup><Compile Include="../../test-data/PngFixture.cs" Link="PngFixture.cs" /></ItemGroup>
+  <ItemGroup><Reference Include="org.apache.xmlgraphics.fop.core"><HintPath>../../PdfGenerator.Infrastructure/bin/$(Configuration)/net8.0/org.apache.xmlgraphics.fop.core.dll</HintPath></Reference></ItemGroup>
+  <Target Name="PublishBenchmarkWorkerDependencies" AfterTargets="Publish">
+    <!-- ProjectReference does not import the NuGet buildTransitive target. -->
+    <Copy SourceFiles="$(PublishDir)$(AssemblyName).deps.json" DestinationFiles="$(PublishDir)PdfGenerator.Infrastructure.deps.json" />
+  </Target>
+</Project>

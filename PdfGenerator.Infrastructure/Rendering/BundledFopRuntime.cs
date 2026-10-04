@@ -1,15 +1,41 @@
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
 
-namespace Company.XmlFo;
+namespace PdfGenerator;
 
+
+/// <summary>
+/// <para>Provides the BundledFopRuntime contract or implementation for PDF conversion.</para>
+/// <para>Предоставляет контракт или реализацию BundledFopRuntime для преобразования PDF.</para>
+/// </summary>
 internal static class BundledFopRuntime
 {
+
+    /// <summary>
+    /// <para>Gets or defines the FontResourcePrefix value used by BundledFopRuntime.</para>
+    /// <para>Возвращает или определяет значение FontResourcePrefix, используемое BundledFopRuntime.</para>
+    /// </summary>
     private const string FontResourcePrefix = ".Resources.Fonts.";
+
+    /// <summary>
+    /// <para>Gets or defines the Configuration value used by BundledFopRuntime.</para>
+    /// <para>Возвращает или определяет значение Configuration, используемое BundledFopRuntime.</para>
+    /// </summary>
     private static readonly Lazy<string> Configuration = new(Initialize);
 
+
+    /// <summary>
+    /// <para>Gets or defines the ConfigurationPath value used by BundledFopRuntime.</para>
+    /// <para>Возвращает или определяет значение ConfigurationPath, используемое BundledFopRuntime.</para>
+    /// </summary>
     public static string ConfigurationPath => Configuration.Value;
 
+
+    /// <summary>
+    /// <para>Executes Initialize as part of the BundledFopRuntime conversion workflow.</para>
+    /// <para>Выполняет Initialize в цепочке преобразования BundledFopRuntime.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     private static string Initialize()
     {
         ValidatePlatform();
@@ -24,6 +50,7 @@ internal static class BundledFopRuntime
             }
 
             string configuration = WriteFopConfiguration(directory);
+            RegisterFonts(configuration);
             AppDomain.CurrentDomain.ProcessExit += (_, _) => TryDeleteDirectory(directory);
             return configuration;
         }
@@ -34,6 +61,11 @@ internal static class BundledFopRuntime
         }
     }
 
+
+    /// <summary>
+    /// <para>Executes ValidatePlatform as part of the BundledFopRuntime conversion workflow.</para>
+    /// <para>Выполняет ValidatePlatform в цепочке преобразования BundledFopRuntime.</para>
+    /// </summary>
     private static void ValidatePlatform()
     {
         if (RuntimeInformation.ProcessArchitecture != Architecture.X64 ||
@@ -43,6 +75,12 @@ internal static class BundledFopRuntime
         }
     }
 
+
+    /// <summary>
+    /// <para>Executes ExtractFonts as part of the BundledFopRuntime conversion workflow.</para>
+    /// <para>Выполняет ExtractFonts в цепочке преобразования BundledFopRuntime.</para>
+    /// </summary>
+    /// <param name="directory"><para>The directory argument.</para><para>Аргумент directory.</para></param>
     private static void ExtractFonts(string directory)
     {
         System.Reflection.Assembly assembly = typeof(BundledFopRuntime).Assembly;
@@ -55,6 +93,12 @@ internal static class BundledFopRuntime
         }
     }
 
+
+    /// <summary>
+    /// <para>Executes ConfigureLinuxFonts as part of the BundledFopRuntime conversion workflow.</para>
+    /// <para>Выполняет ConfigureLinuxFonts в цепочке преобразования BundledFopRuntime.</para>
+    /// </summary>
+    /// <param name="directory"><para>The directory argument.</para><para>Аргумент directory.</para></param>
     private static void ConfigureLinuxFonts(string directory)
     {
         // Dependencies are loaded first, without LD_LIBRARY_PATH or Docker ENV settings.
@@ -87,6 +131,13 @@ internal static class BundledFopRuntime
         }
     }
 
+
+    /// <summary>
+    /// <para>Executes WriteFopConfiguration as part of the BundledFopRuntime conversion workflow.</para>
+    /// <para>Выполняет WriteFopConfiguration в цепочке преобразования BundledFopRuntime.</para>
+    /// </summary>
+    /// <param name="directory"><para>The directory argument.</para><para>Аргумент directory.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     private static string WriteFopConfiguration(string directory)
     {
         string fontUri = new Uri(Path.Combine(directory, "DejaVuSans.ttf")).AbsoluteUri;
@@ -110,6 +161,60 @@ internal static class BundledFopRuntime
         return path;
     }
 
+
+    /// <summary>
+    /// <para>Executes RegisterFonts as part of the BundledFopRuntime conversion workflow.</para>
+    /// <para>Выполняет RegisterFonts в цепочке преобразования BundledFopRuntime.</para>
+    /// </summary>
+    /// <param name="configuration"><para>The configuration argument.</para><para>Аргумент configuration.</para></param>
+    /// <returns><para>Configured aliases mapped to registered physical font families.</para><para>Настроенные псевдонимы, сопоставленные с зарегистрированными семействами шрифтов.</para></returns>
+    internal static IReadOnlyDictionary<string, string> RegisterFonts(string configuration)
+    {
+        java.lang.System.setProperty("java.awt.headless", "true");
+        using var reader = System.Xml.XmlReader.Create(configuration, new()
+        {
+            DtdProcessing = System.Xml.DtdProcessing.Prohibit,
+            XmlResolver = null,
+            MaxCharactersInDocument = 1024 * 1024
+        });
+        var document = XDocument.Load(reader);
+        var aliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        Uri baseUri = new(Path.GetFullPath(configuration));
+        if (document.Root?.Element("base") is { } configuredBase)
+        {
+            baseUri = new Uri(baseUri, configuredBase.Value);
+        }
+        foreach (XElement element in document.Descendants("font"))
+        {
+            if (element.Attribute("embed-url") is not { } embedded)
+            {
+                continue;
+            }
+            Uri uri = new(baseUri, embedded.Value);
+            if (!uri.IsFile || uri.IsUnc)
+            {
+                throw new IOException("Font resources must be local.");
+            }
+            string path = uri.LocalPath;
+            using var input = new java.io.FileInputStream(path);
+            var font = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, input);
+            java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
+            string family = font.getFamily();
+            aliases[family] = family;
+            foreach (XAttribute alias in element.Elements("font-triplet").Attributes("name"))
+            {
+                aliases[alias.Value] = family;
+            }
+        }
+        return aliases;
+    }
+
+
+    /// <summary>
+    /// <para>Executes TryDeleteDirectory as part of the BundledFopRuntime conversion workflow.</para>
+    /// <para>Выполняет TryDeleteDirectory в цепочке преобразования BundledFopRuntime.</para>
+    /// </summary>
+    /// <param name="directory"><para>The directory argument.</para><para>Аргумент directory.</para></param>
     private static void TryDeleteDirectory(string directory)
     {
         try
@@ -126,6 +231,15 @@ internal static class BundledFopRuntime
         }
     }
 
+
+    /// <summary>
+    /// <para>Executes SetNativeEnvironment as part of the BundledFopRuntime conversion workflow.</para>
+    /// <para>Выполняет SetNativeEnvironment в цепочке преобразования BundledFopRuntime.</para>
+    /// </summary>
+    /// <param name="name"><para>The name argument.</para><para>Аргумент name.</para></param>
+    /// <param name="value"><para>The value argument.</para><para>Аргумент value.</para></param>
+    /// <param name="overwrite"><para>The overwrite argument.</para><para>Аргумент overwrite.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [DllImport("libc", EntryPoint = "setenv", SetLastError = true)]
     private static extern int SetNativeEnvironment(string name, string value, int overwrite);
 }

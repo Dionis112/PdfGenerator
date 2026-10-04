@@ -1,0 +1,112 @@
+{
+  "dateUtc": "2026-10-04T10:09:37.0955655+00:00",
+  "scenario": "repeated",
+  "mode": "inProcess",
+  "templateCache": {
+    "Hits": 2,
+    "Misses": 1,
+    "Compilations": 1,
+    "Evictions": 0,
+    "Entries": 1,
+    "EstimatedBytes": 540480
+  },
+  "fopCache": {
+    "Hits": 2,
+    "Misses": 1,
+    "Evictions": 0,
+    "Entries": 1,
+    "EstimatedBytes": 5713744
+  },
+  "workerPool": null,
+  "framework": ".NET 8.0.31",
+  "os": "Microsoft Windows 10.0.26100",
+  "architecture": "X64",
+  "processors": 16,
+  "memoryAvailable": 68653494272,
+  "saxon": "13.0.0.0",
+  "inputBytes": 100514019,
+  "sizeMiB": 100,
+  "concurrency": 1,
+  "iterations": 3,
+  "peakWorkingSet": 462618624,
+  "peakManagedHeap": 283143768,
+  "peakTemporary": 128398,
+  "allocatedBytes": 3503772184,
+  "gcCounts": [
+    335,
+    90,
+    11
+  ],
+  "elapsedMs": 20201.3736,
+  "documentsPerMinute": 8.910284880964756,
+  "p50Ms": 3561.127,
+  "p95Ms": 13441.3628,
+  "measurements": [
+    {
+      "round": 0,
+      "PageCount": 9,
+      "PdfBytes": 30730,
+      "StageDurations": {
+        "input": "00:00:00.3416798",
+        "snapshot": "00:00:00.0389564",
+        "compile": "00:00:00.8067992",
+        "transform": "00:00:04.2509327",
+        "render": "00:00:07.9819111",
+        "foPreparation": "00:00:00.1763116",
+        "factory": "00:00:01.6924802",
+        "fop": "00:00:04.0194218",
+        "publish": "00:00:00.0041810"
+      },
+      "queueMs": 0.5742,
+      "preparationMs": 341.6798,
+      "transformMs": 5458.3047,
+      "renderMs": 7981.9111,
+      "publishMs": 1.004,
+      "totalMs": 13441.3628
+    },
+    {
+      "round": 1,
+      "PageCount": 9,
+      "PdfBytes": 30730,
+      "StageDurations": {
+        "input": "00:00:00.2214903",
+        "snapshot": "00:00:00.0043390",
+        "compile": "00:00:00.0017080",
+        "transform": "00:00:02.0879253",
+        "render": "00:00:01.2314553",
+        "foPreparation": "00:00:00.1204564",
+        "factory": "00:00:00.0138262",
+        "fop": "00:00:01.0916235",
+        "publish": "00:00:00.0006765"
+      },
+      "queueMs": 0.0047,
+      "preparationMs": 221.4903,
+      "transformMs": 2328.9119,
+      "renderMs": 1231.4553,
+      "publishMs": 0.667,
+      "totalMs": 3561.127
+    },
+    {
+      "round": 2,
+      "PageCount": 9,
+      "PdfBytes": 30730,
+      "StageDurations": {
+        "input": "00:00:00.2135074",
+        "snapshot": "00:00:00.0044417",
+        "compile": "00:00:00.0009947",
+        "transform": "00:00:01.9858565",
+        "render": "00:00:00.9252296",
+        "foPreparation": "00:00:00.1503087",
+        "factory": "00:00:00.0124008",
+        "fop": "00:00:00.7569485",
+        "publish": "00:00:00.0008795"
+      },
+      "queueMs": 0.0026,
+      "preparationMs": 213.5074,
+      "transformMs": 2217.7874,
+      "renderMs": 925.2296,
+      "publishMs": 0.8636,
+      "totalMs": 3143.9874
+    }
+  ]
+}

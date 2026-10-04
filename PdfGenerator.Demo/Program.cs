@@ -1,5 +1,7 @@
 using System.Diagnostics;
-using Company.XmlFo;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using PdfGenerator;
 using PdfGenerator.Demo;
 
 try
@@ -14,6 +16,15 @@ try
 
         return fallback ?? throw new ArgumentException($"Required argument: {flag}");
     }
+    if (args.Contains("--diagnose-xslt"))
+    {
+        XsltDiagnosticReport report = new XsltDiagnostics().AnalyzeFile(Value("--diagnose-xslt"));
+        var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
+        jsonOptions.Converters.Add(new JsonStringEnumConverter());
+        Console.WriteLine(JsonSerializer.Serialize(report, jsonOptions));
+        return report.HasErrors ? 3 : 0;
+    }
+
     using var cancellation = new CancellationTokenSource();
     Console.CancelKeyPress += (_, e) =>
     {

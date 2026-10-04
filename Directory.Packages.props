@@ -7,7 +7,7 @@
     <PackageVersion Include="IKVM.Maven.Sdk" Version="1.11.0" />
     <PackageVersion Include="SaxonCS-HE" Version="13.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
-    <PackageVersion Include="Company.XmlFo" Version="0.1.0-preview.2" />
+    <PackageVersion Include="PdfGenerator" Version="0.1.0-preview.3" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />

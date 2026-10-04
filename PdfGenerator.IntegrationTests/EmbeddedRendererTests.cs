@@ -1,17 +1,39 @@
 using System.Text;
-using Company.XmlFo;
 using FluentAssertions;
 using PdfGenerator.TestData;
 using Xunit;
 
 namespace PdfGenerator.IntegrationTests;
 
+
+/// <summary>
+/// <para>Runs the EmbeddedRendererTests validation scenario.</para>
+/// <para>Выполняет проверку сценария EmbeddedRendererTests.</para>
+/// </summary>
 public sealed class EmbeddedRendererTests : IDisposable
 {
+
+    /// <summary>
+    /// <para>Runs the directory validation scenario.</para>
+    /// <para>Выполняет проверку сценария directory.</para>
+    /// </summary>
     private readonly string directory = Path.Combine(Path.GetTempPath(), "xmlfo-test-" + Guid.NewGuid().ToString("N"));
 
+
+    /// <summary>
+    /// <para>Runs the EmbeddedRendererTests validation scenario.</para>
+    /// <para>Выполняет проверку сценария EmbeddedRendererTests.</para>
+    /// </summary>
+    /// <exception cref="ArgumentException"><para>An argument violates the documented contract.</para><para>Аргумент нарушает описанный контракт.</para></exception>
     public EmbeddedRendererTests() => Directory.CreateDirectory(directory);
 
+
+    /// <summary>
+    /// <para>Runs the WriteFo validation scenario.</para>
+    /// <para>Выполняет проверку сценария WriteFo.</para>
+    /// </summary>
+    /// <param name="content"><para>The content argument.</para><para>Аргумент content.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     private string WriteFo(string content)
     {
         string path = Path.Combine(directory, "input.fo");
@@ -23,6 +45,12 @@ public sealed class EmbeddedRendererTests : IDisposable
         return path;
     }
 
+
+    /// <summary>
+    /// <para>Runs the BundledRendererHandlesCyrillicPngAlphaIccAndSvg validation scenario.</para>
+    /// <para>Выполняет проверку сценария BundledRendererHandlesCyrillicPngAlphaIccAndSvg.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task BundledRendererHandlesCyrillicPngAlphaIccAndSvg()
     {
@@ -44,6 +72,12 @@ public sealed class EmbeddedRendererTests : IDisposable
         Directory.GetDirectories(directory).Should().BeEmpty();
     }
 
+
+    /// <summary>
+    /// <para>Runs the MissingImageFailsWithoutReplacingPreviousPdf validation scenario.</para>
+    /// <para>Выполняет проверку сценария MissingImageFailsWithoutReplacingPreviousPdf.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task MissingImageFailsWithoutReplacingPreviousPdf()
     {
@@ -56,6 +90,12 @@ public sealed class EmbeddedRendererTests : IDisposable
         (await File.ReadAllTextAsync(pdf)).Should().Be("previous");
     }
 
+
+    /// <summary>
+    /// <para>Runs the PreCancelledOperationDoesNotCreatePdf validation scenario.</para>
+    /// <para>Выполняет проверку сценария PreCancelledOperationDoesNotCreatePdf.</para>
+    /// </summary>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     [Fact]
     public async Task PreCancelledOperationDoesNotCreatePdf()
     {
@@ -68,5 +108,10 @@ public sealed class EmbeddedRendererTests : IDisposable
         File.Exists(pdf).Should().BeFalse();
     }
 
+
+    /// <summary>
+    /// <para>Runs the Dispose validation scenario.</para>
+    /// <para>Выполняет проверку сценария Dispose.</para>
+    /// </summary>
     public void Dispose() => Directory.Delete(directory, true);
 }

@@ -1,0 +1,30 @@
+[
+  {
+    "round": 0,
+    "source": "file",
+    "elapsedMs": 9909.4704,
+    "pages": 167,
+    "retainedInputBytes": 0
+  },
+  {
+    "round": 1,
+    "source": "bufferedStream",
+    "elapsedMs": 8012.2712,
+    "pages": 167,
+    "retainedInputBytes": 699282
+  },
+  {
+    "round": 2,
+    "source": "file",
+    "elapsedMs": 7990.1965,
+    "pages": 167,
+    "retainedInputBytes": 0
+  },
+  {
+    "round": 3,
+    "source": "bufferedStream",
+    "elapsedMs": 9426.9577,
+    "pages": 167,
+    "retainedInputBytes": 699282
+  }
+]

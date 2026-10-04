@@ -1,12 +1,28 @@
 using System.Diagnostics;
 using System.Xml.Linq;
-using Company.XmlFo;
 using PdfGenerator.TestData;
 
 namespace PdfGenerator.Demo;
 
+
+/// <summary>
+/// <para>Provides the DemoSelfTest contract or implementation for PDF conversion.</para>
+/// <para>Предоставляет контракт или реализацию DemoSelfTest для преобразования PDF.</para>
+/// </summary>
 internal static class DemoSelfTest
 {
+
+    /// <summary>
+    /// <para>Executes RunAsync as part of the DemoSelfTest conversion workflow.</para>
+    /// <para>Выполняет RunAsync в цепочке преобразования DemoSelfTest.</para>
+    /// </summary>
+    /// <param name="transformer"><para>The transformer argument.</para><para>Аргумент transformer.</para></param>
+    /// <param name="renderer"><para>The renderer argument.</para><para>Аргумент renderer.</para></param>
+    /// <param name="dataDirectory"><para>The dataDirectory argument.</para><para>Аргумент dataDirectory.</para></param>
+    /// <param name="outputDirectory"><para>The outputDirectory argument.</para><para>Аргумент outputDirectory.</para></param>
+    /// <param name="pdf"><para>The pdf argument.</para><para>Аргумент pdf.</para></param>
+    /// <param name="verifyTools"><para>The verifyTools argument.</para><para>Аргумент verifyTools.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     public static async Task RunAsync(SaxonFoTransformer transformer, IFoPdfRenderer renderer, string dataDirectory, string outputDirectory, bool pdf, bool verifyTools)
     {
         string data = Path.GetFullPath(dataDirectory);
@@ -42,6 +58,7 @@ internal static class DemoSelfTest
         {
             string target = Path.Combine(output, "result.pdf");
             await new XmlPdfGenerator(transformer, renderer).GenerateFileAsync(Path.Combine(data, "basic/input.xml"), xslt, target);
+            await VerifyRequestApiAsync(transformer, renderer, data, xslt, output);
             if (verifyTools)
             {
                 var start = new ProcessStartInfo("pdftotext") { RedirectStandardOutput = true, UseShellExecute = false };
@@ -115,6 +132,64 @@ internal static class DemoSelfTest
                 throw new Exception("Sanitized PNG PDF differs from no-ICC baseline.");
             }
         }
-        Console.WriteLine($"SELF-TEST PASS: FO{(pdf ? " + PDF + Cyrillic text + PNG without ICC (with alpha) + SVG" : "")}; output={output}");
+        Console.WriteLine($"SELF-TEST PASS: FO{(pdf ? " + PDF + request/stream API + Cyrillic text + PNG without ICC (with alpha) + SVG" : "")}; output={output}");
+    }
+
+
+    /// <summary>
+    /// <para>Executes VerifyRequestApiAsync as part of the DemoSelfTest conversion workflow.</para>
+    /// <para>Выполняет VerifyRequestApiAsync в цепочке преобразования DemoSelfTest.</para>
+    /// </summary>
+    /// <param name="transformer"><para>The transformer argument.</para><para>Аргумент transformer.</para></param>
+    /// <param name="renderer"><para>The renderer argument.</para><para>Аргумент renderer.</para></param>
+    /// <param name="data"><para>The data argument.</para><para>Аргумент data.</para></param>
+    /// <param name="xsltPath"><para>Local stylesheet path; relative dependencies require a permitted base directory.</para><para>Путь локального шаблона; относительным зависимостям требуется разрешённый базовый каталог.</para></param>
+    /// <param name="outputDirectory"><para>The outputDirectory argument.</para><para>Аргумент outputDirectory.</para></param>
+    /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
+    private static async Task VerifyRequestApiAsync(SaxonFoTransformer transformer, IFoPdfRenderer renderer,
+            string data, string xsltPath, string outputDirectory)
+    {
+        XNamespace xsl = "http://www.w3.org/1999/XSL/Transform";
+        XNamespace fo = "http://www.w3.org/1999/XSL/Format";
+        var stylesheet = XDocument.Load(xsltPath);
+        stylesheet.Root!.AddFirst(new XElement(xsl + "param", new XAttribute("name", "title"), new XAttribute("select", "'default'")));
+        stylesheet.Descendants(xsl + "value-of").First().SetAttributeValue("select", "$title");
+        using var xslt = new MemoryStream();
+        stylesheet.Save(xslt);
+        xslt.Position = 0;
+        using FileStream xml = File.OpenRead(Path.Combine(data, "basic/input.xml"));
+        var request = new ConversionRequest(XmlSource.FromStream(xml), XmlSource.FromStream(xslt, new Uri(xsltPath)),
+            [new XsltParameter("title", "Параметр из NuGet")], jobId: "consumer-request");
+        string intermediate = Path.Combine(outputDirectory, "request.fo");
+        await transformer.TransformAsync(request, intermediate);
+        if (XDocument.Load(intermediate).Descendants(fo + "block").First().Value != "Параметр из NuGet")
+        {
+            throw new Exception("Packaged XSLT parameter API failed.");
+        }
+        xml.Position = 0;
+        xslt.Position = 0;
+        using var pdf = new MemoryStream();
+        ConversionResult result = await new XmlPdfGenerator(transformer, renderer).GenerateAsync(request, pdf);
+        if (result.JobId != request.JobId || result.PdfBytes != pdf.Length ||
+            (renderer is IReportingFoPdfRenderer && result.PageCount is not > 0) ||
+            !pdf.GetBuffer().AsSpan(0, 5).SequenceEqual("%PDF-"u8) || !xml.CanRead || !xslt.CanRead)
+        {
+            throw new Exception("Packaged stream/result API failed.");
+        }
+        if (renderer is EmbeddedFopRenderer)
+        {
+            xml.Position = 0;
+            xslt.Position = 0;
+            await using var worker = new WorkerXmlPdfGenerator(new()
+            {
+                WorkingDirectory = outputDirectory
+            });
+            using var workerPdf = new MemoryStream();
+            ConversionResult workerResult = await worker.GenerateAsync(request, workerPdf);
+            if (workerResult.PageCount != result.PageCount || workerResult.PdfBytes != workerPdf.Length)
+            {
+                throw new Exception("Packaged worker API failed.");
+            }
+        }
     }
 }
