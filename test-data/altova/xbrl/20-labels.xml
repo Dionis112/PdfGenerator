@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<probes xmlns:t="urn:altova-fixture:taxonomy" taxonomy="taxonomy/fixture.xsd">
+ <concept name="t:Revenue"/><concept name="t:Unlabelled"/>
+</probes>

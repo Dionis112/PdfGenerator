@@ -145,6 +145,7 @@ public sealed class XmlPdfGenerator(IXsltFoTransformer transformer, IFoPdfRender
             return new(request.JobId, report?.PageCount, size, transformTime, renderTime, watch.Elapsed, total.Elapsed,
                 report?.Warnings ?? Array.AsReadOnly(new[] { "Renderer does not provide page count or warnings." }))
             {
+                Diagnostics = transformation?.Diagnostics ?? Array.Empty<XsltExecutionDiagnostic>(),
                 InputPreparationDuration = transformation?.InputPreparation ?? TimeSpan.Zero,
                 StageDurations = new System.Collections.ObjectModel.ReadOnlyDictionary<string, TimeSpan>(new Dictionary<string, TimeSpan>
                 {

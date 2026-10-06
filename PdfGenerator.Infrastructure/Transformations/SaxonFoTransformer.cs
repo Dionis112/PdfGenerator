@@ -107,12 +107,15 @@ public sealed class SaxonFoTransformer : IReportingXsltFoTransformer, IDisposabl
             StylesheetSnapshot snapshot = await Task.Run(() => StylesheetSnapshot.Create(xslt, resources, options, cancellationToken), CancellationToken.None).ConfigureAwait(false);
             TimeSpan snapshotTime = watch.Elapsed;
             watch.Restart();
-            XsltExecutable executable = await cache.GetAsync(snapshot, cancellationToken).ConfigureAwait(false);
+            CompiledStylesheet stylesheet = await cache.GetAsync(snapshot, cancellationToken).ConfigureAwait(false);
             TimeSpan compilationTime = watch.Elapsed;
             watch.Restart();
             // Hold the execution slot until synchronous Saxon actually finishes.
-            await Task.Run(() => Transform(request, xml, executable, foPath, cancellationToken), CancellationToken.None).ConfigureAwait(false);
-            return new(preparationTime, snapshotTime, compilationTime, watch.Elapsed);
+            IReadOnlyList<XsltExecutionDiagnostic> diagnostics = await Task.Run(() => Transform(request, xml, stylesheet, foPath, cancellationToken), CancellationToken.None).ConfigureAwait(false);
+            return new(preparationTime, snapshotTime, compilationTime, watch.Elapsed)
+            {
+                Diagnostics = diagnostics
+            };
         }
         catch (OperationCanceledException) { throw; }
         catch (ConversionException) { throw; }
@@ -130,24 +133,26 @@ public sealed class SaxonFoTransformer : IReportingXsltFoTransformer, IDisposabl
     /// </summary>
     /// <param name="request"><para>Immutable job inputs and settings; its streams remain caller-owned.</para><para>Неизменяемые входы и настройки задания; его потоки принадлежат вызывающему коду.</para></param>
     /// <param name="xml"><para>The xml argument.</para><para>Аргумент xml.</para></param>
-    /// <param name="executable"><para>The executable argument.</para><para>Аргумент executable.</para></param>
+    /// <param name="stylesheet"><para>Executable and immutable compilation diagnostics.</para><para>Исполняемый шаблон и неизменяемые диагностики компиляции.</para></param>
     /// <param name="foPath"><para>The foPath argument.</para><para>Аргумент foPath.</para></param>
     /// <param name="token"><para>Cancellation token; synchronous in-process engines finish before their slot is released.</para><para>Токен отмены; синхронный движок внутри процесса завершает работу до освобождения слота.</para></param>
     /// <exception cref="OperationCanceledException"><para>The supplied cancellation token is canceled.</para><para>Переданный токен отмены отменён.</para></exception>
-    private void Transform(ConversionRequest request, PreparedXmlSource xml, XsltExecutable executable, string foPath, CancellationToken token)
+    /// <returns><para>Compilation and job-local transformation diagnostics.</para><para>Диагностики компиляции и преобразования текущего задания.</para></returns>
+    private IReadOnlyList<XsltExecutionDiagnostic> Transform(ConversionRequest request, PreparedXmlSource xml, CompiledStylesheet stylesheet, string foPath, CancellationToken token)
     {
         ConversionStage stage = ConversionStage.Input;
         string? temporary = null;
+        var diagnostics = new SaxonDiagnosticCollector(ConversionStage.Transform);
 
         try
         {
             token.ThrowIfCancellationRequested();
             temporary = AtomicOutput.Prepare(foPath, new[] { request.Xml.FilePath, request.Xslt.FilePath }.OfType<string>().ToArray());
-            Processor processor = executable.Processor;
+            Processor processor = stylesheet.Executable.Processor;
             stage = ConversionStage.Transform;
             using XmlReader input = OpenXml(xml);
-            XsltTransformer transformer = executable.Load();
-            transformer.ErrorReporter = _ => { };
+            XsltTransformer transformer = stylesheet.Executable.Load();
+            transformer.ErrorReporter = diagnostics.Report;
             transformer.TraceFunctionDestination = TextWriter.Null;
             transformer.MessageListener = _ => { };
             foreach (XsltParameter parameter in request.Parameters)
@@ -179,6 +184,7 @@ public sealed class SaxonFoTransformer : IReportingXsltFoTransformer, IDisposabl
             }
             stage = ConversionStage.Publish;
             AtomicOutput.Publish(temporary, foPath, token);
+            return Array.AsReadOnly(stylesheet.Diagnostics.Concat(diagnostics.Snapshot()).ToArray());
         }
         catch (OperationCanceledException)
         {
@@ -186,7 +192,10 @@ public sealed class SaxonFoTransformer : IReportingXsltFoTransformer, IDisposabl
         }
         catch (Exception ex)
         {
-            throw new ConversionException(stage, $"XML → FO failed during {stage}.", ex);
+            throw new ConversionException(stage, $"XML → FO failed during {stage}.", ex)
+            {
+                Diagnostics = Array.AsReadOnly(stylesheet.Diagnostics.Concat(diagnostics.Snapshot()).ToArray())
+            };
         }
         finally
         {

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<invoice number="DEMO-001" title="Счёт на оплату" total-expression="sum(lines/line/@amount)">
+  <lines>
+    <line code="A" amount="125.50">Бумага А4</line>
+    <line code="B" amount="74.50">Папка</line>
+  </lines>
+  <notes><note>Доставка включена</note><note>Доставка включена</note><note>Спасибо за заказ</note></notes>
+</invoice>

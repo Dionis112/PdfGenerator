@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<report xmlns:p="urn:altova-fixture:product">
+  <expressions total="sum(p:items/p:item/@amount)" selected="p:items/p:item[xs:decimal(@amount) ge $p1]" label="concat(@code, ': ', p:name)"/>
+  <p:items>
+    <p:item code="A" amount="12.50"><p:name>Бумага</p:name></p:item>
+    <p:item code="B" amount="25.00"><p:name>Папка</p:name></p:item>
+    <p:item code="C" amount="0.00"><p:name>Образец</p:name></p:item>
+  </p:items>
+</report>

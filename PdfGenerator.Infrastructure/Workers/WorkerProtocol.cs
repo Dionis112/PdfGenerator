@@ -58,8 +58,10 @@ internal sealed record WorkerJob(string Directory, string JobId, string? XmlBase
 /// <param name="Result"><para>The Result argument.</para><para>Аргумент Result.</para></param>
 /// <param name="Stage"><para>The Stage argument.</para><para>Аргумент Stage.</para></param>
 /// <param name="ErrorCode"><para>The ErrorCode argument.</para><para>Аргумент ErrorCode.</para></param>
+/// <param name="Diagnostics"><para>Safe bounded Saxon diagnostics on failure.</para><para>Безопасные ограниченные диагностики Saxon при ошибке.</para></param>
 internal sealed record WorkerMessage(string Kind, int Version = 1, string? Engine = null, WorkerJob? Job = null,
-    ConversionResult? Result = null, ConversionStage? Stage = null, string? ErrorCode = null);
+    ConversionResult? Result = null, ConversionStage? Stage = null, string? ErrorCode = null,
+    IReadOnlyList<XsltExecutionDiagnostic>? Diagnostics = null);
 
 
 /// <summary>

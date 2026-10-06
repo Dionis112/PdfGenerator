@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<samples>
+  <text id="ascii">Plain text 123</text>
+  <text id="escaping">{раздел} C:\Reports\file.rtf &amp; &lt; &gt;</text>
+  <text id="unicode">Привет, мир! Ёж — € 😀</text>
+  <text id="whitespace" xml:space="preserve">  начало&#9;середина&#10;строка&#13;&#10;конец  </text>
+  <text id="empty"/>
+</samples>

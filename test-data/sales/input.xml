@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <title>Отчёт по продажам за 2026 год</title>
+    <subtitle>Квартальный срез: Q1 2026</subtitle>
+    <generated>2026-10-03</generated>
+
+    <!-- Строка ниже — это XPath-выражение, которое вычислит altova:evaluate -->
+    <!-- Оно относительное: ../title/text() вернёт текст заголовка -->
+    <dynamic-expression>../title/text()</dynamic-expression>
+
+    <items>
+        <item id="1" price="100000">
+            <name>Ноутбук Pro 15</name>
+            <quantity>120</quantity>
+            <description>Продано 120 штук, выручка 12 000 000 руб.</description>
+        </item>
+        <item id="2" price="25000">
+            <name>Смартфон X200</name>
+            <quantity>350</quantity>
+            <description>Продано 350 штук, выручка 8 750 000 руб.</description>
+        </item>
+        <item id="3" price="30000">
+            <name>Планшет Tab Mini</name>
+            <quantity>80</quantity>
+            <description>Продано 80 штук, выручка 2 400 000 руб.</description>
+        </item>
+        <item id="4" price="7000">
+            <name>Наушники AirSound</name>
+            <quantity>500</quantity>
+            <description>Продано 500 штук, выручка 3 500 000 руб.</description>
+        </item>
+    </items>
+
+    <footer>Документ сформирован автоматически. Altova XSLT + Apache FOP.</footer>
+</document>

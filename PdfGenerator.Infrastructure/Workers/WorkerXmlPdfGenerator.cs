@@ -241,7 +241,10 @@ public sealed class WorkerXmlPdfGenerator : IProcessIsolatedXmlPdfGenerator, IAs
             WorkerMessage response = await worker.ExecuteAsync(job, token).ConfigureAwait(false);
             if (response.Kind == "error")
             {
-                throw new ConversionException(response.Stage ?? ConversionStage.Render, "Worker conversion failed (" + response.ErrorCode + ").");
+                throw new ConversionException(response.Stage ?? ConversionStage.Render, "Worker conversion failed (" + response.ErrorCode + ").")
+                {
+                    Diagnostics = Array.AsReadOnly((response.Diagnostics ?? Array.Empty<XsltExecutionDiagnostic>()).ToArray())
+                };
             }
             ConversionResult result = response.Result ?? throw new PdfWorkerException(WorkerFailureKind.Protocol, "Worker omitted its result.");
             string generated = Path.Combine(directory, "result.pdf");

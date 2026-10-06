@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<catalog>
+  <item code="A"><name>Бумага</name></item>
+  <item code="A"><name>Бумага</name></item>
+  <item code="B"><name>Бумага</name></item>
+  <item code="A"><name> Бумага </name></item>
+  <item code="A"><label>Бумага</label></item>
+  <item code="C"/>
+  <item code="C"/>
+</catalog>

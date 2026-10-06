@@ -109,7 +109,7 @@ public sealed class CacheTests : IDisposable
         var policy = new LocalResourcePolicy([directory]);
         var first = StylesheetSnapshot.Create(source, policy, options, default);
         using var cancellation = new CancellationTokenSource();
-        Task<Saxon.Api.XsltExecutable> canceled = cache.GetAsync(first, cancellation.Token);
+        Task<CompiledStylesheet> canceled = cache.GetAsync(first, cancellation.Token);
         cancellation.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => canceled);
         using PreparedXmlSource secondSource = await PreparedXmlSource.CreateAsync(XmlSource.FromFile(stylesheet), options.MaxStylesheetBytes, options.MemoryBufferThresholdBytes, default);

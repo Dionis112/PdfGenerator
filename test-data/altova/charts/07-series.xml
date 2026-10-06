@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<chart title="Продажи по кварталам" series="Выручка" type="BarChart" width="12cm" height="8cm">
+  <point label="I" value="125.50"/>
+  <point label="II" value="0"/>
+  <point label="III" value="210.25"/>
+</chart>

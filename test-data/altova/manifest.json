@@ -1,0 +1,300 @@
+{
+  "schemaVersion": 1,
+  "namespaceUri": "http://www.altova.com/xslt-extensions",
+  "baselineStatus": "not-captured",
+  "profiles": {
+    "legacy-general": {
+      "source": "https://www.altova.com/documents/2012/AltovaXMLRep.pdf",
+      "xsltVersion": "2.0"
+    },
+    "legacy-charts": {
+      "source": "https://www.altova.com/documents/2012/AltovaXMLRep.pdf",
+      "xsltVersion": "2.0",
+      "requires": "AltovaXML Enterprise or Reporting chart engine"
+    },
+    "modern-datetime": {
+      "source": "https://www.altova.com/manual/XMLSpy/spyenterprise/fxaltova_xpxqdatetime.html",
+      "xsltVersion": "3.0",
+      "requires": "Engine supporting the documented Altova XPath 3.1 extensions; not a claim of AltovaXML 2012 support"
+    },
+    "legacy-negative": {
+      "source": "https://www.altova.com/documents/2012/AltovaXMLRep.pdf",
+      "xsltVersion": "2.0",
+      "requires": "evaluate must be registered; unknown extension is not the expected failure"
+    },
+    "legacy-xbrl": {
+      "source": "https://www.altova.com/documents/2012/AltovaXMLRep.pdf",
+      "xsltVersion": "2.0",
+      "requires": "Altova engine with XBRL support and an XML catalog or network access for standard XBRL 2.1 schemas"
+    }
+  },
+  "cases": [
+    {
+      "id": "01-distinct-nodes",
+      "input": "01-distinct-nodes.xml",
+      "stylesheet": "01-distinct-nodes.xsl",
+      "profile": "legacy-general",
+      "result": "xml",
+      "functions": [
+        "distinct-nodes#1"
+      ]
+    },
+    {
+      "id": "02-evaluate",
+      "input": "02-evaluate.xml",
+      "stylesheet": "02-evaluate.xsl",
+      "profile": "legacy-general",
+      "result": "xml",
+      "functions": [
+        "evaluate#1",
+        "evaluate#2",
+        "evaluate#4"
+      ]
+    },
+    {
+      "id": "03-encode-for-rtf",
+      "input": "03-encode-for-rtf.xml",
+      "stylesheet": "03-encode-for-rtf.xsl",
+      "profile": "legacy-general",
+      "result": "xml",
+      "functions": [
+        "encode-for-rtf#3"
+      ]
+    },
+    {
+      "id": "04-auto-number",
+      "input": "04-auto-number.xml",
+      "stylesheet": "04-auto-number.xsl",
+      "profile": "legacy-general",
+      "result": "xml",
+      "functions": [
+        "generate-auto-number#4",
+        "reset-auto-number#1"
+      ]
+    },
+    {
+      "id": "05-temp-folder",
+      "input": "05-temp-folder.xml",
+      "stylesheet": "05-temp-folder.xsl",
+      "profile": "legacy-general",
+      "result": "environment",
+      "functions": [
+        "get-temp-folder#0"
+      ]
+    },
+    {
+      "id": "06-invoice-fo",
+      "input": "06-invoice-fo.xml",
+      "stylesheet": "06-invoice-fo.xsl",
+      "profile": "legacy-general",
+      "result": "fo",
+      "functions": [
+        "evaluate#1",
+        "distinct-nodes#1"
+      ]
+    },
+    {
+      "id": "charts/07-series",
+      "input": "charts/07-series.xml",
+      "stylesheet": "charts/07-series.xsl",
+      "profile": "legacy-charts",
+      "result": "image-xml",
+      "functions": [
+        "create-chart-config#2",
+        "create-chart-data-series#3",
+        "create-chart#2",
+        "generate-chart-image#4",
+        "generate-chart-image#5"
+      ]
+    },
+    {
+      "id": "charts/08-rows",
+      "input": "charts/08-rows.xml",
+      "stylesheet": "charts/08-rows.xsl",
+      "profile": "legacy-charts",
+      "result": "image-xml",
+      "functions": [
+        "create-chart-config#2",
+        "create-chart-data-row#3",
+        "create-chart-data-series-from-rows#2",
+        "create-chart#2",
+        "generate-chart-image#5"
+      ]
+    },
+    {
+      "id": "modern/09-date-arithmetic",
+      "input": "modern/09-date-arithmetic.xml",
+      "stylesheet": "modern/09-date-arithmetic.xsl",
+      "profile": "modern-datetime",
+      "result": "xml",
+      "functions": [
+        "add-years-to-date#2",
+        "add-months-to-date#2",
+        "add-days-to-date#2"
+      ]
+    },
+    {
+      "id": "modern/10-datetime-arithmetic",
+      "input": "modern/10-datetime-arithmetic.xml",
+      "stylesheet": "modern/10-datetime-arithmetic.xsl",
+      "profile": "modern-datetime",
+      "result": "xml",
+      "functions": [
+        "add-years-to-dateTime#2",
+        "add-months-to-dateTime#2",
+        "add-days-to-dateTime#2",
+        "add-hours-to-dateTime#2",
+        "add-minutes-to-dateTime#2",
+        "add-seconds-to-dateTime#2"
+      ]
+    },
+    {
+      "id": "modern/11-time-arithmetic",
+      "input": "modern/11-time-arithmetic.xml",
+      "stylesheet": "modern/11-time-arithmetic.xsl",
+      "profile": "modern-datetime",
+      "result": "xml",
+      "functions": [
+        "add-hours-to-time#2",
+        "add-minutes-to-time#2",
+        "add-seconds-to-time#2"
+      ]
+    },
+    {
+      "id": "modern/12-build-values",
+      "input": "modern/12-build-values.xml",
+      "stylesheet": "modern/12-build-values.xsl",
+      "profile": "modern-datetime",
+      "result": "xml",
+      "functions": [
+        "build-date#3",
+        "build-time#3",
+        "build-time#4",
+        "build-duration#2",
+        "build-duration#4"
+      ]
+    },
+    {
+      "id": "modern/13-calendar",
+      "input": "modern/13-calendar.xml",
+      "stylesheet": "modern/13-calendar.xsl",
+      "profile": "modern-datetime",
+      "result": "xml",
+      "functions": [
+        "weekday-from-date#1",
+        "weekday-from-date#2",
+        "weeknumber-from-date#1",
+        "weeknumber-from-date#2",
+        "weeknumber-from-dateTime#1",
+        "weeknumber-from-dateTime#2"
+      ]
+    },
+    {
+      "id": "negative/14-evaluate-syntax",
+      "input": "negative/14-evaluate-syntax.xml",
+      "stylesheet": "negative/14-evaluate-syntax.xsl",
+      "profile": "legacy-negative",
+      "result": "dynamic-error",
+      "functions": [
+        "evaluate#1"
+      ]
+    },
+    {
+      "id": "negative/15-evaluate-missing-parameter",
+      "input": "negative/15-evaluate-missing-parameter.xml",
+      "stylesheet": "negative/15-evaluate-missing-parameter.xsl",
+      "profile": "legacy-negative",
+      "result": "dynamic-error",
+      "functions": [
+        "evaluate#1"
+      ]
+    },
+    {
+      "id": "negative/16-evaluate-unknown-prefix",
+      "input": "negative/16-evaluate-unknown-prefix.xml",
+      "stylesheet": "negative/16-evaluate-unknown-prefix.xsl",
+      "profile": "legacy-negative",
+      "result": "dynamic-error",
+      "functions": [
+        "evaluate#1"
+      ]
+    },
+    {
+      "id": "charts/17-config-from-xml",
+      "profile": "legacy-charts",
+      "result": "image-xml",
+      "functions": [
+        "create-chart-config-from-xml#1",
+        "create-chart-data-series#3",
+        "create-chart#2",
+        "generate-chart-image#5"
+      ],
+      "input": "charts/17-config-from-xml.xml",
+      "stylesheet": "charts/17-config-from-xml.xsl"
+    },
+    {
+      "id": "charts/18-multi-layer",
+      "profile": "legacy-charts",
+      "result": "image-xml",
+      "functions": [
+        "create-chart-config#2",
+        "create-chart-data-series#3",
+        "create-chart-layer#2",
+        "create-multi-layer-chart#3",
+        "create-multi-layer-chart#4",
+        "generate-chart-image#5"
+      ],
+      "input": "charts/18-multi-layer.xml",
+      "stylesheet": "charts/18-multi-layer.xsl"
+    },
+    {
+      "id": "charts/19-save-image",
+      "profile": "legacy-charts",
+      "result": "image-files",
+      "functions": [
+        "create-chart-config#2",
+        "create-chart-data-series#3",
+        "create-chart#2",
+        "save-chart-image#4",
+        "save-chart-image#5"
+      ],
+      "requiredParameters": [
+        "output-directory"
+      ],
+      "sideEffects": [
+        "Writes altova-19-default.img and altova-19-explicit.png in the supplied existing output directory; use a fresh directory"
+      ],
+      "input": "charts/19-save-image.xml",
+      "stylesheet": "charts/19-save-image.xsl"
+    },
+    {
+      "id": "xbrl/20-labels",
+      "profile": "legacy-xbrl",
+      "result": "xml",
+      "functions": [
+        "xbrl-labels#2"
+      ],
+      "resources": [
+        "xbrl/taxonomy/fixture.xsd",
+        "xbrl/taxonomy/labels.xml"
+      ],
+      "input": "xbrl/20-labels.xml",
+      "stylesheet": "xbrl/20-labels.xsl"
+    },
+    {
+      "id": "xbrl/21-footnotes",
+      "profile": "legacy-xbrl",
+      "result": "xml",
+      "functions": [
+        "xbrl-footnotes#1"
+      ],
+      "resources": [
+        "xbrl/taxonomy/fixture.xsd",
+        "xbrl/taxonomy/labels.xml"
+      ],
+      "note": "The 2012 manual inconsistently spells the signature footnotes; the fixture uses xbrl-footnotes from its function list. Verify the QName on the target engine.",
+      "input": "xbrl/21-footnotes.xml",
+      "stylesheet": "xbrl/21-footnotes.xsl"
+    }
+  ]
+}

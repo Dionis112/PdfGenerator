@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<chart title="План и факт" width="12cm" height="8cm">
+  <series name="План"/><series name="Факт"/>
+  <row label="Январь" plan="100" actual="95"/>
+  <row label="Февраль" plan="120" actual="135"/>
+  <row label="Март" plan="0" actual="20"/>
+</chart>

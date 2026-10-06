@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<operations>
+  <next id="main" start="10" increment="5" group="A"/>
+  <next id="main" start="10" increment="5" group="A"/>
+  <next id="other" start="100" increment="-2" group="X"/>
+  <next id="main" start="10" increment="5" group="B"/>
+  <next id="other" start="100" increment="-2" group="X"/>
+  <reset id="main"/>
+  <next id="main" start="10" increment="5" group="B"/>
+  <next id="main" start="10" increment="5" group="B"/>
+  <next id="main" start="10" increment="5" group="A"/>
+  <next id="constant" start="0" increment="0" group=""/>
+  <next id="constant" start="0" increment="0" group=""/>
+</operations>

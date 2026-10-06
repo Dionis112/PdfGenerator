@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+ xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase"
+ xmlns:xlink="http://www.w3.org/1999/xlink" targetNamespace="urn:altova-fixture:taxonomy" elementFormDefault="qualified">
+ <xs:import namespace="http://www.xbrl.org/2003/instance" schemaLocation="http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd"/>
+ <xs:annotation><xs:appinfo>
+  <link:linkbaseRef xlink:type="simple" xlink:href="labels.xml"
+   xlink:role="http://www.xbrl.org/2003/role/labelLinkbaseRef" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase"/>
+ </xs:appinfo></xs:annotation>
+ <xs:element name="Revenue" id="Revenue" substitutionGroup="xbrli:item" type="xbrli:monetaryItemType" xbrli:periodType="duration" nillable="true"/>
+ <xs:element name="Unlabelled" id="Unlabelled" substitutionGroup="xbrli:item" type="xbrli:monetaryItemType" xbrli:periodType="duration" nillable="true"/>
+</xs:schema>

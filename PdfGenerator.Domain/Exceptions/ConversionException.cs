@@ -17,4 +17,10 @@ public sealed class ConversionException(ConversionStage stage, string message, E
     /// <para>Возвращает или определяет значение Stage, используемое ConversionException.</para>
     /// </summary>
     public ConversionStage Stage { get; } = stage;
+
+    /// <summary>
+    /// <para>Bounded Saxon diagnostics without document text or resource paths.</para>
+    /// <para>Ограниченные диагностики Saxon без текста документов и путей ресурсов.</para>
+    /// </summary>
+    public IReadOnlyList<XsltExecutionDiagnostic> Diagnostics { get; init; } = Array.Empty<XsltExecutionDiagnostic>();
 }

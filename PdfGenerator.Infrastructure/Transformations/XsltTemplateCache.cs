@@ -31,7 +31,7 @@ internal sealed class XsltTemplateCache(XmlFoOptions options) : IDisposable
     /// </summary>
     /// <param name="Task"><para>The Task argument.</para><para>Аргумент Task.</para></param>
     /// <param name="Weight"><para>The Weight argument.</para><para>Аргумент Weight.</para></param>
-    private sealed record Entry(Task<XsltExecutable> Task, long Weight)
+    private sealed record Entry(Task<CompiledStylesheet> Task, long Weight)
     {
 
         /// <summary>
@@ -69,7 +69,7 @@ internal sealed class XsltTemplateCache(XmlFoOptions options) : IDisposable
     /// <para>Tracks shared compilation tasks, including uncached entries and canceled waiters, until completion.</para>
     /// <para>Учитывает общие задачи компиляции, включая некэшируемые записи и отменённых ожидателей, до завершения.</para>
     /// </summary>
-    private readonly HashSet<Task<XsltExecutable>> pending = [];
+    private readonly HashSet<Task<CompiledStylesheet>> pending = [];
 
     /// <summary>
     /// <para>Prevents new compilation admission after disposal begins.</para>
@@ -102,9 +102,9 @@ internal sealed class XsltTemplateCache(XmlFoOptions options) : IDisposable
     /// <param name="token"><para>Cancellation token; synchronous in-process engines finish before their slot is released.</para><para>Токен отмены; синхронный движок внутри процесса завершает работу до освобождения слота.</para></param>
     /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     /// <exception cref="OperationCanceledException"><para>The supplied cancellation token is canceled.</para><para>Переданный токен отмены отменён.</para></exception>
-    public Task<XsltExecutable> GetAsync(StylesheetSnapshot snapshot, CancellationToken token)
+    public Task<CompiledStylesheet> GetAsync(StylesheetSnapshot snapshot, CancellationToken token)
     {
-        Task<XsltExecutable> task;
+        Task<CompiledStylesheet> task;
         lock (gate)
         {
             ObjectDisposedException.ThrowIf(disposed, this);
@@ -158,7 +158,7 @@ internal sealed class XsltTemplateCache(XmlFoOptions options) : IDisposable
     /// </summary>
     /// <param name="snapshot"><para>The snapshot argument.</para><para>Аргумент snapshot.</para></param>
     /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
-    private async Task<XsltExecutable> CompileAsync(StylesheetSnapshot snapshot)
+    private async Task<CompiledStylesheet> CompileAsync(StylesheetSnapshot snapshot)
     {
         await compileSlots.WaitAsync().ConfigureAwait(false);
         try
@@ -174,6 +174,7 @@ internal sealed class XsltTemplateCache(XmlFoOptions options) : IDisposable
                 processor.SetProperty(Feature.PRE_EVALUATE_DOC_FUNCTION, false);
                 processor.CollectionFinder = _ => throw new XmlException("Collections are disabled.");
                 var readers = new List<XmlReader>();
+                var diagnostics = new SaxonDiagnosticCollector(ConversionStage.Compile);
                 try
                 {
                     processor.SetResourceResolver(request =>
@@ -188,11 +189,18 @@ internal sealed class XsltTemplateCache(XmlFoOptions options) : IDisposable
                     }, false);
                     using XmlReader main = snapshot.Open(snapshot.BaseUri);
                     XsltCompiler compiler = processor.NewXsltCompiler();
-                    compiler.ErrorReporter = _ => { };
+                    compiler.ErrorReporter = diagnostics.Report;
                     XsltExecutable executable = compiler.Compile(main);
                     // Freeze runtime policy before publishing the immutable executable to other jobs.
                     processor.SetResourceResolver(_ => throw new XmlException("External runtime resources are disabled."), false);
-                    return executable;
+                    return new CompiledStylesheet(executable, diagnostics.Snapshot());
+                }
+                catch (Exception ex)
+                {
+                    throw new ConversionException(ConversionStage.Compile, "XSLT compilation failed.", ex)
+                    {
+                        Diagnostics = diagnostics.Snapshot()
+                    };
                 }
                 finally { foreach (XmlReader reader in readers) { reader.Dispose(); } }
             }).ConfigureAwait(false);
@@ -234,7 +242,7 @@ internal sealed class XsltTemplateCache(XmlFoOptions options) : IDisposable
     /// </summary>
     public void Dispose()
     {
-        Task<XsltExecutable>[] outstanding;
+        Task<CompiledStylesheet>[] outstanding;
         lock (gate)
         {
             if (disposed)

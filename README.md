@@ -224,6 +224,7 @@ foreach (string warning in result.Warnings)
 | `TotalDuration` | Полное измеренное время, включая очередь при использовании планировщика |
 | `StageDurations` | Подробные вложенные этапы; их нельзя все складывать с крупными этапами повторно |
 | `Warnings` | Коды предупреждений встроенного FOP без текста документа |
+| `Diagnostics` | Диагностики Saxon: код, этап, признак предупреждения, строка и столбец; без текста документа и путей |
 | `ProfileVersion` | Версия подготовленного профиля при регистрации через соответствующую перегрузку DI |
 | `EngineCounters` | Наблюдения кэшей/GC внутри worker; словарь может быть пустым |
 
@@ -443,6 +444,10 @@ catch (PdfWorkerException ex)
 }
 catch (ConversionException ex)
 {
+    foreach (XsltExecutionDiagnostic diagnostic in ex.Diagnostics)
+    {
+        Console.Error.WriteLine($"{diagnostic.Stage}: {diagnostic.Code}, строка {diagnostic.Line}, столбец {diagnostic.Column}");
+    }
     Console.WriteLine($"Преобразование завершилось ошибкой на этапе {ex.Stage}.");
 }
 ```
@@ -460,6 +465,14 @@ catch (ConversionException ex)
 | Отмена вызывающего кода | `OperationCanceledException` |
 | Чтение, компиляция, преобразование, FOP, публикация | `ConversionException.Stage`: `Input`, `Compile`, `Transform`, `Render`, `Publish` |
 | Запуск, обмен или авария worker | `PdfWorkerException.Kind`: `Startup`, `Protocol`, `Crash` |
+
+`ConversionException.Diagnostics`, `TransformResult.Diagnostics` и `ConversionResult.Diagnostics`
+содержат диагностики реального выполнения Saxon. Предупреждения компиляции сохраняются с шаблоном
+и возвращаются при попадании в кэш; предупреждения выполнения принадлежат отдельному заданию.
+Сбор ограничен 64 записями на этап; ошибка вытесняет предупреждение, если лимит заполнен.
+`Line` и `Column` могут быть `null`, если Saxon не сообщил позицию. Коды пользовательских ошибок
+заменяются на `SAXON_ERROR`; сообщения движка, значения XML и пути не включаются.
+Worker передаёт те же поля. Предварительный аудит через `IXsltDiagnostics` остаётся отдельной проверкой шаблона.
 | Timeout / наблюдаемая память worker | `PdfWorkerException.Kind`: `Timeout`, `MemoryLimit` |
 
 Не повторяйте автоматически ошибки шаблона или лимитов. Предыдущий файловый PDF сохраняется при ошибке или отмене **до публикации**. Ошибка при копировании в Stream может оставить частичные данные. Исключения движков в `InnerException` могут содержать фрагменты документа; учитывайте это при логировании. Автоматический вывод `xsl:message`, `trace()` и error reporter Saxon отключён, значения параметров не добавляются в сообщения библиотеки.

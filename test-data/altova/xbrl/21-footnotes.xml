@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance"
+ xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink"
+ xmlns:t="urn:altova-fixture:taxonomy" xmlns:iso4217="http://www.xbrl.org/2003/iso4217">
+ <link:schemaRef xlink:type="simple" xlink:href="taxonomy/fixture.xsd"/>
+ <xbrli:context id="period"><xbrli:entity><xbrli:identifier scheme="urn:altova-fixture:entity">DEMO</xbrli:identifier></xbrli:entity><xbrli:period><xbrli:startDate>2012-01-01</xbrli:startDate><xbrli:endDate>2012-12-31</xbrli:endDate></xbrli:period></xbrli:context>
+ <xbrli:unit id="rub"><xbrli:measure>iso4217:RUB</xbrli:measure></xbrli:unit>
+ <t:Revenue id="revenue" contextRef="period" unitRef="rub" decimals="2">125.50</t:Revenue>
+ <t:Unlabelled id="no-notes" contextRef="period" unitRef="rub" decimals="2">0.00</t:Unlabelled>
+ <link:footnoteLink xlink:type="extended" xlink:role="http://www.xbrl.org/2003/role/link">
+  <link:loc xlink:type="locator" xlink:href="#revenue" xlink:label="fact"/>
+  <link:footnote xlink:type="resource" xlink:label="ru" xlink:role="http://www.xbrl.org/2003/role/footnote" xml:lang="ru">Включает доставку.</link:footnote>
+  <link:footnote xlink:type="resource" xlink:label="en" xlink:role="http://www.xbrl.org/2003/role/footnote" xml:lang="en">Includes delivery.</link:footnote>
+  <link:footnoteArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/fact-footnote" xlink:from="fact" xlink:to="ru"/>
+  <link:footnoteArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/fact-footnote" xlink:from="fact" xlink:to="en"/>
+ </link:footnoteLink>
+</xbrli:xbrl>

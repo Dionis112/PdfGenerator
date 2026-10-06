@@ -292,6 +292,9 @@ public sealed record ConversionResult(string JobId, int? PageCount, long PdfByte
     TimeSpan TotalDuration, IReadOnlyList<string> Warnings)
 {
 
+    /// <summary><para>Safe compilation and transformation diagnostics, including warnings on success.</para><para>Безопасные диагностики компиляции и преобразования, включая предупреждения успешного задания.</para></summary>
+    public IReadOnlyList<XsltExecutionDiagnostic> Diagnostics { get; init; } = Array.Empty<XsltExecutionDiagnostic>();
+
     /// <summary>
     /// <para>Gets or defines the QueueDuration value used by ConversionResult.</para>
     /// <para>Возвращает или определяет значение QueueDuration, используемое ConversionResult.</para>
@@ -395,7 +398,11 @@ public sealed record RenderResult(int PageCount, IReadOnlyList<string> Warnings)
 /// <param name="Snapshot"><para>The Snapshot argument.</para><para>Аргумент Snapshot.</para></param>
 /// <param name="Compilation"><para>The Compilation argument.</para><para>Аргумент Compilation.</para></param>
 /// <param name="Transformation"><para>The Transformation argument.</para><para>Аргумент Transformation.</para></param>
-public sealed record TransformResult(TimeSpan InputPreparation, TimeSpan Snapshot, TimeSpan Compilation, TimeSpan Transformation);
+public sealed record TransformResult(TimeSpan InputPreparation, TimeSpan Snapshot, TimeSpan Compilation, TimeSpan Transformation)
+{
+    /// <summary><para>Safe diagnostics from compilation and execution.</para><para>Безопасные диагностики компиляции и выполнения.</para></summary>
+    public IReadOnlyList<XsltExecutionDiagnostic> Diagnostics { get; init; } = Array.Empty<XsltExecutionDiagnostic>();
+}
 
 
 /// <summary>

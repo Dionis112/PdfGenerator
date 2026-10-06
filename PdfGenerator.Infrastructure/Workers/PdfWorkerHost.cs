@@ -101,7 +101,7 @@ internal static class PdfWorkerHost
                 };
                 await WorkerProtocol.WriteAsync(protocol, new("result", Result: result), CancellationToken.None);
             }
-            catch (ConversionException ex) { await WorkerProtocol.WriteAsync(protocol, new("error", Stage: ex.Stage, ErrorCode: ex.InnerException?.GetType().Name), CancellationToken.None); }
+            catch (ConversionException ex) { await WorkerProtocol.WriteAsync(protocol, new("error", Stage: ex.Stage, ErrorCode: ex.InnerException?.GetType().Name, Diagnostics: ex.Diagnostics), CancellationToken.None); }
             catch (Exception ex) { await WorkerProtocol.WriteAsync(protocol, new("error", Stage: ConversionStage.Input, ErrorCode: ex.GetType().Name), CancellationToken.None); }
         }
         return 0;

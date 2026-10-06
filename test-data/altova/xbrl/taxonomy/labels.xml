@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<link:linkbase xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <link:labelLink xlink:type="extended" xlink:role="http://www.xbrl.org/2003/role/link">
+  <link:loc xlink:type="locator" xlink:href="fixture.xsd#Revenue" xlink:label="revenue"/>
+  <link:label xlink:type="resource" xlink:label="ru" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="ru">Выручка</link:label>
+  <link:label xlink:type="resource" xlink:label="en" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en">Revenue</link:label>
+  <link:label xlink:type="resource" xlink:label="verbose" xlink:role="http://www.xbrl.org/2003/role/verboseLabel" xml:lang="ru">Выручка за отчётный период</link:label>
+  <link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="revenue" xlink:to="ru"/>
+  <link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="revenue" xlink:to="en"/>
+  <link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="revenue" xlink:to="verbose"/>
+ </link:labelLink>
+</link:linkbase>

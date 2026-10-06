@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cases>
+  <case id="leap" year="2024" month="2" day="29" hour="23" minute="59" second="58" timezone="+5" years="1" months="25" days="2" hours="49" minutes="125" seconds="121"/>
+  <case id="zero" year="2026" month="1" day="1" hour="0" minute="0" second="0" timezone="+0" years="0" months="0" days="0" hours="0" minutes="0" seconds="0"/>
+</cases>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cases>
+  <case id="midnight" value="23:59:59.500Z" delta="1"/>
+  <case id="backwards" value="00:00:00+05:00" delta="-1"/>
+  <case id="identity" value="12:30:15" delta="0"/>
+  <case id="multiple-days" value="22:10:05-03:00" delta="49"/>
+</cases>

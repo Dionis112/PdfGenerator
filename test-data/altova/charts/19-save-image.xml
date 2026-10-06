@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<chart title="Сохранение диаграммы" width="12cm" height="8cm">
+ <point label="A" value="5"/><point label="B" value="15"/>
+</chart>
