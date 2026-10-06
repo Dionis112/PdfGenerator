@@ -14,6 +14,10 @@ try {
     dotnet test PdfGenerator.IntegrationTests -c Release
     if ($LASTEXITCODE) { throw 'Integration tests failed' }
 
+    $altovaOutput = Join-Path 'artifacts/altova2012-acceptance' ([Guid]::NewGuid().ToString('N'))
+    dotnet run --project eng/PdfGenerator.TemplateValidation -c Release -- . $altovaOutput --strict-altova2012
+    if ($LASTEXITCODE) { throw 'AltovaXML 2012 general-profile acceptance failed' }
+
     foreach ($project in @('PdfGenerator.Domain', 'PdfGenerator.Application', 'PdfGenerator.Infrastructure')) {
         dotnet pack $project -c Release -o artifacts/packages
         if ($LASTEXITCODE) { throw "Pack failed: $project" }

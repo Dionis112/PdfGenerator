@@ -169,10 +169,7 @@ internal sealed class XsltTemplateCache(XmlFoOptions options) : IDisposable
                 {
                     compilations++;
                 }
-                var processor = new Processor();
-                processor.SetProperty(Feature.ALLOW_EXTERNAL_FUNCTIONS, false);
-                processor.SetProperty(Feature.PRE_EVALUATE_DOC_FUNCTION, false);
-                processor.CollectionFinder = _ => throw new XmlException("Collections are disabled.");
+                Processor processor = SaxonProcessorFactory.Create(options);
                 var readers = new List<XmlReader>();
                 var diagnostics = new SaxonDiagnosticCollector(ConversionStage.Compile);
                 try

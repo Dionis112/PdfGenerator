@@ -87,7 +87,7 @@ internal static class WorkerProtocol
     /// <para>Gets or defines the Engine value used by WorkerProtocol.</para>
     /// <para>Возвращает или определяет значение Engine, используемое WorkerProtocol.</para>
     /// </summary>
-    public static string Engine => typeof(Saxon.Api.Processor).Assembly.GetName().Version + ";FOP-2.11;" + typeof(WorkerProtocol).Assembly.GetName().Version;
+    public static string Engine => typeof(Saxon.Api.Processor).Assembly.GetName().Version + ";FOP-2.11;" + typeof(WorkerProtocol).Assembly.GetName().Version + ";" + Altova2012Options.ImplementationVersion;
 
     /// <summary>
     /// <para>Executes WriteAsync as part of the WorkerProtocol conversion workflow.</para>

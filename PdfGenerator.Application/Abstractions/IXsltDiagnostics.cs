@@ -95,7 +95,14 @@ public sealed record XsltFunctionUsage(
     string Name,
     int Occurrences,
     XsltFunctionSupport Support,
-    string Explanation);
+    string Explanation)
+{
+    /// <summary><para>Statically counted arguments; null indicates an incomplete expression.</para><para>Статически подсчитанное число аргументов; null обозначает неполное выражение.</para></summary>
+    public int? ArgumentCount
+    {
+        get; init;
+    }
+}
 
 
 /// <summary>

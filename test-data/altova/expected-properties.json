@@ -1,0 +1,56 @@
+{
+  "confirmation": "documentation-only; not compared with AltovaXML",
+  "01-distinct-nodes": {
+    "assertions": [
+      "@input-count = '7' and @unique-count = '5'",
+      "count(unique/item) = 5 and unique/item[1]/@code = 'A' and unique/item[2]/@code = 'B' and unique/item[3]/name = ' Бумага ' and exists(unique/item[4]/label) and unique/item[5]/@code = 'C'",
+      "empty/@count = '0' and single/@count = '1' and repeated-node/@count = '1'",
+      "string-join(identity/node/@source-positions, '|') = '1|3|4|5|6'"
+    ]
+  },
+  "02-evaluate": {
+    "assertions": [
+      "total = '37.5' and count(selected/*) = 1 and selected/*/@code = 'B'",
+      "string-join(labels/label, '|') = 'A: Бумага|B: Папка|C: Образец'",
+      "parameters = '2|4|текст|7' and node-parameter = 'A' and empty/@count = '0'"
+    ]
+  },
+  "03-encode-for-rtf": {
+    "assertions": [
+      "count(sample) = 5 and (every $s in sample satisfies count($s/encoded) = 4)",
+      "every $v in sample[@id='ascii']/encoded[@whitespace='false'] satisfies $v = 'Plain text 123'",
+      "every $v in sample[@id='escaping']/encoded satisfies contains($v, '\\{') and contains($v, '\\}') and contains($v, 'C:\\\\Reports\\\\file.rtf')",
+      "every $v in sample[@id='unicode']/encoded satisfies contains($v, '\\u1055?') and contains($v, '\\u-10179?\\u-8704?')",
+      "every $v in sample[@id='whitespace']/encoded[@newlines='true'] satisfies contains($v, '\\line ')",
+      "every $v in sample[@id='whitespace']/encoded[@newlines='false'] satisfies not(contains($v, '\\line '))",
+      "every $v in sample[@id='empty']/encoded satisfies string($v) = ''",
+      "string(absent) = ''"
+    ],
+    "allowedDifference": "RTF escape spelling and whitespace are an explicitly provisional contract until original-engine capture"
+  },
+  "04-auto-number": {
+    "assertions": [
+      "count(operation) = 11",
+      "string-join(operation, '|') = '10|15|100|10|98||10|15|10|0|0'"
+    ],
+    "allowedDifference": "reset returns the empty sequence provisionally; confirm on the original engine"
+  },
+  "05-temp-folder": {
+    "assertions": [
+      "@nonempty = 'true' and @stable = 'true' and string-length(path) gt 0",
+      "ends-with(path, '/') or ends-with(path, '\\')"
+    ],
+    "allowedDifference": "Native absolute per-job directory, removed after transformation; differs from Altova's system directory"
+  },
+  "06-invoice-fo": {
+    "assertions": [
+      "self::fo:root and count(fo:page-sequence) = 1",
+      "exists(.//fo:block[. = 'Итого: 200.00'])",
+      "count(.//fo:block[. = 'Доставка включена']) = 1 and count(.//fo:block[. = 'Спасибо за заказ']) = 1"
+    ]
+  },
+  "negative/14-evaluate-syntax": { "errorCode": "XPST0003", "stage": "Transform" },
+  "negative/15-evaluate-missing-parameter": { "errorCode": "XPST0008", "stage": "Transform" },
+  "negative/16-evaluate-unknown-prefix": { "errorCode": "XPST0081", "stage": "Transform" }
+}
+

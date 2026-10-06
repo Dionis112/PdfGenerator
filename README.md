@@ -12,6 +12,7 @@ NuGet-пакет: `PdfGenerator`, текущая версия — `0.1.0-preview
 ## Возможности
 
 - XSLT 2.0, относительные `xsl:include` и `xsl:import`.
+- Опциональный общий профиль AltovaXML 2012: шесть расширений, банковский комплект, изоляция заданий. [Настройка и ограничения](docs/altova-2012-implementation.md); сравнение с оригинальным Altova пока не подтверждено.
 - Файловый и потоковый API, типизированные параметры XSLT и метрики задания.
 - Кириллица со встроенным DejaVu Sans.
 - PNG из локального файла или data URI, включая прозрачность.
@@ -96,6 +97,7 @@ dotnet add package PdfGenerator --version 0.1.0-preview.3
 7. [Ошибки, отмена и очередь](#7-ошибки-отмена-и-очередь).
 8. [Кэши, отдельные этапы и диагностика](#8-кэши-отдельные-этапы-и-диагностика).
 9. [Публикация и контейнер](#9-публикация-и-контейнер).
+10. [Шаблоны AltovaXML 2012](#10-шаблоны-altovaxml-2012).
 
 ### 1. Первый PDF
 
@@ -526,7 +528,7 @@ foreach (XsltDiagnostic issue in report.Diagnostics)
 }
 ```
 
-`AddXmlFo()` и `AddXmlPdf()` также регистрируют `IXsltDiagnostics`. Altova и незарегистрированные пользовательские расширения сейчас помечаются `Unsupported`; совместимость с ними не реализована. `Supported` означает найденную стандартную функцию или `xsl:function`, а не доказанное совпадение результатов с другим процессором. Для Saxon/EXSLT/EXPath возможен `ReviewRequired`. Анализ сообщает об ограниченных конструкциях и ресурсах, но не проверяет runtime-семантику и динамически построенные функции. Отчёт содержит имена функций, URI и относительные имена модулей.
+`AddXmlFo()` и `AddXmlPdf()` также регистрируют `IXsltDiagnostics` с выбранным профилем. При `XmlFoOptions.Altova2012 = new()` шесть общих функций проверяются по QName и арности; остальные Altova-функции и незарегистрированные расширения помечаются `Unsupported`. `Supported` означает доступность стандартной функции, `xsl:function` или зарегистрированного каталога, а не доказанное совпадение с другим процессором. Для Saxon/EXSLT/EXPath возможен `ReviewRequired`. Анализ сообщает об ограничениях, но не доказывает семантику строковых выражений. Отчёт содержит имена, URI, арности и относительные имена модулей. [Ограничения профиля](docs/altova-2012-implementation.md).
 
 В Demo есть команда `dotnet run --project PdfGenerator.Demo -- --diagnose-xslt path/to/document.xsl`: JSON-отчёт, код возврата `3` при ошибках. Для существующей внешней установки FOP доступен `FopProcessRenderer` с `FopOptions`; для стандартного использования достаточно встроенного рендерера.
 
@@ -569,6 +571,36 @@ docker run --rm --read-only --network none --memory 2g --cpus 2 --tmpfs /tmp:rw,
 
 В этом демонстрационном запуске PDF находится во временном `/tmp/output` и удаляется вместе с контейнером. Для сохранения результата смонтируйте записываемый каталог и передавайте в программе путь внутри него; копировать шаблоны необязательно, если приложение использует абсолютные пути `/app/...`. Runtime-образ не требует `apt`, Java, Maven или установки системных шрифтов. Для worker тот же установленный dotnet host доступен внутри образа.
 
+### 10. Шаблоны AltovaXML 2012
+
+Общий профиль включается явно через `XmlFoOptions`; без этой настройки функции `altova:*` не зарегистрированы. Он поддерживает `evaluate`, `distinct-nodes`, `generate-auto-number`, `reset-auto-number`, `encode-for-rtf` и `get-temp-folder` в пространстве имён `http://www.altova.com/xslt-extensions`.
+
+После [установки пакета](#установка) скопируйте каталог `test-data/bank-signing` из репозитория в приложение, сохранив этот относительный путь и вложенные файлы. Запустите этот пример из каталога приложения:
+
+```csharp
+using PdfGenerator;
+
+var xmlOptions = new XmlFoOptions { Altova2012 = new() };
+string data = Path.GetFullPath("test-data/bank-signing");
+var request = new ConversionRequest(
+    XmlSource.FromFile(Path.Combine(data, "input.xml")),
+    XmlSource.FromFile(Path.Combine(data, "bank-altova-2012.xsl")),
+    resources: new LocalResourcePolicy([data]));
+
+Directory.CreateDirectory("output");
+using var transformer = new SaxonFoTransformer(xmlOptions);
+using var renderer = new EmbeddedFopRenderer();
+var generator = new XmlPdfGenerator(transformer, renderer);
+ConversionResult result = await generator.GenerateAsync(request, "output/bank.pdf");
+Console.WriteLine($"Страниц: {result.PageCount}"); // 3
+```
+
+Для worker передайте те же настройки: `new WorkerXmlPdfGenerator(xmlOptions: xmlOptions)`. Для DI: `services.AddXmlPdf(PdfExecutionMode.Worker, xmlOptions: xmlOptions)`. Временный каталог, счётчики и кэш динамических XPath изолированы на каждое преобразование. Профиль отключает оптимизации SaxonCS-HE 13.0.0 для правильного выполнения функций внутри циклов.
+
+Контракты проверены на синтетическом корпусе по документации; сравнение с оригинальным Altova ещё требуется. Диаграммы, XBRL и современные расширения дат не реализованы. Выбирайте `bank-altova-2012.xsl`: смешанный `bank-altova.xsl` содержит неподдержанную функцию дат.
+
+[Пошаговая инструкция миграции, лимиты и диагностика](docs/altova-2012-implementation.md), [матрица функций](docs/altova-saxon-function-map.md), [результаты Windows/Linux](docs/altova-2012-validation-2026-10-06.md).
+
 ## PNG и ICC
 
 Перед рендерингом удаляются все блоки PNG `iCCP`. Пиксели, альфа-канал, палитра и остальные блоки сохраняются побайтово. Временная копия изображения используется в FO и удаляется после задания; исходный файл не меняется.
@@ -592,7 +624,9 @@ byte[] cleanedPng = PngIccProfileRemover.RemoveIccProfile(pngBytes);
 ./eng/verify.ps1 -Docker
 ```
 
-Скрипт запускает тесты, создаёт пакеты и проверяет Demo с `PackageReference` на упакованную библиотеку.
+Скрипт проверяет XML-документацию, запускает 122 модульных и интеграционных теста и 70 строгих проверок профиля AltovaXML 2012. Затем создаёт три пакета, проверяет Demo с `PackageReference` в свежем каталоге зависимостей и повторяет self-test после publish. Отчёты приёмки сохраняются в `artifacts/altova2012-acceptance/<идентификатор>/acceptance.json`.
+
+Если сторонние пакеты уже загружены, можно указать локальный feed: `./eng/verify.ps1 -DependencyFeed "$env:USERPROFILE/.nuget/packages"`. Отдельная приёмка Altova и интерпретация результатов описаны в [инструкции тестирования](docs/testing.md).
 
 ```powershell
 ./eng/format.ps1 -Check
@@ -624,6 +658,15 @@ pwsh -File ./eng/format.ps1 -Check
 Сначала запускайте `verify.ps1`: Demo использует локально собранный NuGet-пакет, поэтому обычная сборка всего решения до упаковки библиотеки не является первым шагом. Скрипт создаёт пакеты и проверяет потребителя автоматически.
 
 GitHub Actions выполняет проверку на Windows и сборку с тестами в Debian-контейнере. Workflow не публикует пакеты или образы. Каталоги `bin`, `obj`, `.vs` и `artifacts` создаются локально и исключены из Git; их можно удалить после завершения сборки. В `docs/benchmarks` сохранены небольшие JSON-отчёты, на которые ссылается документация.
+
+### Очистка после проверки
+
+```powershell
+./eng/clean.ps1 -VerificationCache -WhatIf
+./eng/clean.ps1 -VerificationCache
+```
+
+Без параметров скрипт удаляет `bin`, `obj` и `TestResults` проектов. `-VerificationCache` дополнительно удаляет временные каталоги зависимостей потребителя, сгенерированные NuGet-конфигурации и публикацию Demo. Пакеты в `artifacts/packages`, отчёты приёмки, FO/PDF и тестовые данные сохраняются. После очистки запускайте `verify.ps1` для восстановления и полной проверки; `format.ps1 -Check` выполняйте после неё, поскольку он использует `--no-restore`.
 
 ### Каталоги
 
@@ -660,6 +703,9 @@ docs/                          Архитектура и тестировани�
 - [Архитектура и runtime](docs/architecture.md)
 - [План развития: API, производительность и worker](docs/development-plan.md)
 - [Тестирование](docs/testing.md)
+- [AltovaXML 2012: включение, миграция и ограничения](docs/altova-2012-implementation.md)
+- [Матрица функций Altova](docs/altova-saxon-function-map.md)
+- [План совместимости с Altova](docs/altova-2012-compatibility-plan.md)
 - [Результаты нагрузки и бюджеты](docs/performance.md)
 - [Сторонние компоненты и лицензии](THIRD-PARTY-NOTICES.md)
 

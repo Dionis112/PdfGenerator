@@ -54,6 +54,8 @@ public sealed class XsltDiagnostics : IXsltDiagnostics
     /// <para>Возвращает или определяет значение maxStylesheetBytes, используемое XsltDiagnostics.</para>
     /// </summary>
     private readonly long maxStylesheetBytes;
+    /// <summary><para>Selected runtime compatibility profile.</para><para>Выбранный профиль совместимости выполнения.</para></summary>
+    private readonly Altova2012Options? compatibility;
 
 
     /// <summary>
@@ -61,8 +63,9 @@ public sealed class XsltDiagnostics : IXsltDiagnostics
     /// <para>Создаёт XsltDiagnostics со снимком настроек сервиса.</para>
     /// </summary>
     /// <param name="maxStylesheetBytes"><para>The maxStylesheetBytes argument.</para><para>Аргумент maxStylesheetBytes.</para></param>
+    /// <param name="altova2012"><para>Optional general compatibility profile.</para><para>Необязательный общий профиль совместимости.</para></param>
     /// <exception cref="ArgumentException"><para>An argument violates the documented contract.</para><para>Аргумент нарушает описанный контракт.</para></exception>
-    public XsltDiagnostics(long maxStylesheetBytes = 16 * 1024 * 1024)
+    public XsltDiagnostics(long maxStylesheetBytes = 16 * 1024 * 1024, Altova2012Options? altova2012 = null)
     {
         if (maxStylesheetBytes <= 0)
         {
@@ -70,6 +73,8 @@ public sealed class XsltDiagnostics : IXsltDiagnostics
         }
 
         this.maxStylesheetBytes = maxStylesheetBytes;
+        altova2012?.Validate();
+        compatibility = altova2012;
     }
 
 
@@ -104,10 +109,27 @@ public sealed class XsltDiagnostics : IXsltDiagnostics
     public XsltDiagnosticReport AnalyzeFile(string xsltPath)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(xsltPath);
+        string root = Path.GetDirectoryName(Path.GetFullPath(xsltPath))!;
+        if (!Directory.Exists(root))
+        {
+            var context = new Context();
+            context.Add("XSLT_READ", XsltDiagnosticSeverity.Error, "Cannot read stylesheet directory.", Path.GetFileName(xsltPath));
+            return context.Report();
+        }
+        return AnalyzeFile(xsltPath, new LocalResourcePolicy([root]));
+    }
+
+    /// <summary><para>Inspects includes/imports with the same allowed roots as runtime.</para><para>Проверяет include/import с теми же разрешёнными корнями, что и выполнение.</para></summary>
+    /// <param name="xsltPath"><para>Main stylesheet path.</para><para>Путь главного шаблона.</para></param>
+    /// <param name="resources"><para>Runtime resource policy.</para><para>Политика ресурсов выполнения.</para></param>
+    /// <returns><para>Static diagnostic report.</para><para>Статический отчёт диагностики.</para></returns>
+    public XsltDiagnosticReport AnalyzeFile(string xsltPath, LocalResourcePolicy resources)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(xsltPath);
         var context = new Context();
         string rootFile = Path.GetFullPath(xsltPath);
         string rootDirectory = Path.GetDirectoryName(rootFile)!;
-        LoadFile(rootFile, rootDirectory, context);
+        LoadFile(rootFile, rootDirectory, context, resources);
         AnalyzeLoaded(context);
         return context.Report();
     }
@@ -119,8 +141,9 @@ public sealed class XsltDiagnostics : IXsltDiagnostics
     /// </summary>
     /// <param name="path"><para>The path argument.</para><para>Аргумент path.</para></param>
     /// <param name="rootDirectory"><para>The rootDirectory argument.</para><para>Аргумент rootDirectory.</para></param>
+    /// <param name="resources"><para>Allowed runtime resource roots.</para><para>Разрешённые корни ресурсов выполнения.</para></param>
     /// <param name="context"><para>The context argument.</para><para>Аргумент context.</para></param>
-    private void LoadFile(string path, string rootDirectory, Context context)
+    private void LoadFile(string path, string rootDirectory, Context context, LocalResourcePolicy resources)
     {
         string source = Path.GetRelativePath(rootDirectory, path);
         if (!context.Visited.Add(path))
@@ -136,6 +159,7 @@ public sealed class XsltDiagnostics : IXsltDiagnostics
 
         try
         {
+            path = resources.Resolve(new Uri(Path.GetFullPath(path)));
             if (HasSymbolicLink(path))
             {
                 context.Add("XSLT_LINK", XsltDiagnosticSeverity.Error, "Symbolic links in stylesheet paths are not supported.", source);
@@ -161,15 +185,18 @@ public sealed class XsltDiagnostics : IXsltDiagnostics
                     continue;
                 }
 
-                string modulePath = Path.GetFullPath(uri.LocalPath);
-                string relative = Path.GetRelativePath(rootDirectory, modulePath);
-                if (Path.IsPathRooted(relative) || relative == ".." || relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal))
+                string modulePath;
+                try
+                {
+                    modulePath = resources.Resolve(uri);
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                 {
                     context.Add("XSLT_INCLUDE", XsltDiagnosticSeverity.Error, "An include/import leaves the stylesheet directory.", source, Line(module));
                     continue;
                 }
 
-                LoadFile(modulePath, rootDirectory, context);
+                LoadFile(modulePath, rootDirectory, context, resources);
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or XmlException or ArgumentException)
@@ -257,7 +284,7 @@ public sealed class XsltDiagnostics : IXsltDiagnostics
     /// <para>Выполняет AnalyzeLoaded в цепочке преобразования XsltDiagnostics.</para>
     /// </summary>
     /// <param name="context"><para>The context argument.</para><para>Аргумент context.</para></param>
-    private static void AnalyzeLoaded(Context context)
+    private void AnalyzeLoaded(Context context)
     {
         var defined = new HashSet<string>(StringComparer.Ordinal);
         foreach ((XDocument document, _) in context.Documents)
@@ -324,15 +351,22 @@ public sealed class XsltDiagnostics : IXsltDiagnostics
                             continue;
                         }
 
-                        string key = Key(uri, name);
+                        int? arity = CountArguments(attribute.Value, match.Index + match.Length - 1);
+                        string declarationKey = Key(uri, name);
+                        string key = declarationKey + "#" + arity;
                         if (!context.Functions.TryGetValue(key, out FunctionCount? count))
                         {
-                            (XsltFunctionSupport support, string reason) = Classify(uri, name, defined.Contains(key));
-                            count = new FunctionCount(uri, name, support, reason);
+                            (XsltFunctionSupport support, string reason) = Classify(uri, name, defined.Contains(declarationKey), arity);
+                            count = new FunctionCount(uri, name, support, reason) { ArgumentCount = arity };
                             context.Functions.Add(key, count);
                         }
 
                         count.Occurrences++;
+                        if (uri == AltovaNamespace && name == "evaluate")
+                        {
+                            context.Add("XSLT_DYNAMIC_EVALUATION", XsltDiagnosticSeverity.Warning,
+                                "Dynamic expressions require execution tests; stylesheet functions, schema types and current() are outside the general profile.", source, Line(attribute));
+                        }
                     }
                 }
             }
@@ -356,8 +390,9 @@ public sealed class XsltDiagnostics : IXsltDiagnostics
     /// <param name="uri"><para>The uri argument.</para><para>Аргумент uri.</para></param>
     /// <param name="name"><para>The name argument.</para><para>Аргумент name.</para></param>
     /// <param name="defined"><para>The defined argument.</para><para>Аргумент defined.</para></param>
+    /// <param name="arity"><para>Observed argument count.</para><para>Обнаруженное число аргументов.</para></param>
     /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
-    private static (XsltFunctionSupport Support, string Reason) Classify(string uri, string name, bool defined)
+    private (XsltFunctionSupport Support, string Reason) Classify(string uri, string name, bool defined, int? arity)
     {
         if (defined)
         {
@@ -366,7 +401,17 @@ public sealed class XsltDiagnostics : IXsltDiagnostics
 
         if (uri == AltovaNamespace)
         {
-            return (XsltFunctionSupport.Unsupported, "No Altova compatibility function is registered in this package.");
+            if (compatibility is null)
+            {
+                return (XsltFunctionSupport.Unsupported, "AltovaXML 2012 compatibility is disabled.");
+            }
+            (int min, int max) = AltovaFunctionCatalog.Arity(name);
+            if (min < 0 || arity is not null && (arity < min || arity > max))
+            {
+                return (XsltFunctionSupport.Unsupported, "This Altova function/arity is outside the selected general profile.");
+            }
+            return (arity is null ? XsltFunctionSupport.ReviewRequired : XsltFunctionSupport.Supported,
+                Altova2012Options.ImplementationVersion + ": implemented from documentation; original Altova comparison unconfirmed.");
         }
 
         if (uri == FunctionsNamespace && name is "doc" or "document" or "unparsed-text" or "collection" or "uri-collection")
@@ -396,6 +441,37 @@ public sealed class XsltDiagnostics : IXsltDiagnostics
     /// <param name="name"><para>The name argument.</para><para>Аргумент name.</para></param>
     /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
     private static string Key(string uri, string name) => $"{{{uri}}}{name}";
+
+    /// <summary><para>Counts top-level arguments, excluding nested expressions, strings and comments.</para><para>Считает аргументы верхнего уровня с учётом вложений, строк и комментариев.</para></summary>
+    /// <param name="expression"><para>Original expression.</para><para>Исходное выражение.</para></param>
+    /// <param name="open"><para>Opening parenthesis index.</para><para>Индекс открывающей скобки.</para></param>
+    /// <returns><para>Argument count, or null if incomplete.</para><para>Число аргументов либо null при неполном выражении.</para></returns>
+    private static int? CountArguments(string expression, int open)
+    {
+        string masked = MaskLiteralsAndComments(expression);
+        int depth = 0, commas = 0;
+        for (int i = open + 1; i < masked.Length; i++)
+        {
+            char c = masked[i];
+            if (c == ')' && depth == 0)
+            {
+                return string.IsNullOrWhiteSpace(expression[(open + 1)..i]) ? 0 : commas + 1;
+            }
+            if (c is '(' or '[' or '{')
+            {
+                depth++;
+            }
+            else if (c is ')' or ']' or '}')
+            {
+                depth--;
+            }
+            else if (c == ',' && depth == 0)
+            {
+                commas++;
+            }
+        }
+        return null;
+    }
 
 
     /// <summary>
@@ -487,6 +563,11 @@ public sealed class XsltDiagnostics : IXsltDiagnostics
     /// <param name="explanation"><para>The explanation argument.</para><para>Аргумент explanation.</para></param>
     private sealed class FunctionCount(string uri, string name, XsltFunctionSupport support, string explanation)
     {
+        /// <summary><para>Observed arity.</para><para>Обнаруженная арность.</para></summary>
+        public int? ArgumentCount
+        {
+            get; init;
+        }
 
         /// <summary>
         /// <para>Gets or defines the NamespaceUri value used by FunctionCount.</para>
@@ -575,7 +656,7 @@ public sealed class XsltDiagnostics : IXsltDiagnostics
         /// <returns><para>The operation result or task representing its completion.</para><para>Результат операции или задача, представляющая её завершение.</para></returns>
         public XsltDiagnosticReport Report() => new(
                     Functions.Values.OrderBy(f => f.NamespaceUri, StringComparer.Ordinal).ThenBy(f => f.Name, StringComparer.Ordinal)
-                        .Select(f => new XsltFunctionUsage(f.NamespaceUri, f.Name, f.Occurrences, f.Support, f.Explanation)).ToArray(),
+                        .Select(f => new XsltFunctionUsage(f.NamespaceUri, f.Name, f.Occurrences, f.Support, f.Explanation) { ArgumentCount = f.ArgumentCount }).ToArray(),
                     [.. Diagnostics], Documents.Count);
     }
 }

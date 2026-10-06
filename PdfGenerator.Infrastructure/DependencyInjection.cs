@@ -51,7 +51,7 @@ public static class ServiceCollectionExtensions
             PdfWorkerOptions worker = workerOptions ?? new();
             services.AddSingleton<IXmlPdfGenerator>(_ => new ScheduledXmlPdfGenerator(new WorkerXmlPdfGenerator(worker, xmlOptions, options),
                 schedulerOptions ?? new PdfSchedulerOptions { MaxActiveJobs = worker.MaxWorkers }));
-            services.AddSingleton<IXsltDiagnostics>(_ => new XsltDiagnostics(xmlOptions?.MaxStylesheetBytes ?? new XmlFoOptions().MaxStylesheetBytes));
+            services.AddSingleton<IXsltDiagnostics>(_ => new XsltDiagnostics(xmlOptions?.MaxStylesheetBytes ?? new XmlFoOptions().MaxStylesheetBytes, xmlOptions?.Altova2012));
             return services;
         }
         if (mode != PdfExecutionMode.InProcess)
@@ -90,7 +90,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddXmlFo(this IServiceCollection services, XmlFoOptions? options = null)
     {
         services.AddSingleton<IXsltFoTransformer>(_ => new SaxonFoTransformer(options));
-        services.AddSingleton<IXsltDiagnostics>(_ => new XsltDiagnostics(options?.MaxStylesheetBytes ?? new XmlFoOptions().MaxStylesheetBytes));
+        services.AddSingleton<IXsltDiagnostics>(_ => new XsltDiagnostics(options?.MaxStylesheetBytes ?? new XmlFoOptions().MaxStylesheetBytes, options?.Altova2012));
         return services;
     }
 

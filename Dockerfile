@@ -13,6 +13,7 @@ RUN --mount=type=cache,target=/root/.nuget/packages --mount=type=cache,target=/r
 RUN --mount=type=cache,target=/root/.nuget/packages --mount=type=cache,target=/root/.m2 --mount=type=cache,target=/ikvm-cache \
     export IkvmCacheDir=/ikvm-cache \
     && dotnet run --project eng/PdfGenerator.Documentation -c Release -- --check . \
+    && dotnet run --project eng/PdfGenerator.TemplateValidation -c Release -- . artifacts/altova2012-linux --strict-altova2012 \
     && dotnet publish eng/PdfGenerator.Benchmarks -c Release -r linux-x64 --self-contained false -o /benchmark
 
 FROM mcr.microsoft.com/dotnet/runtime:8.0-bookworm-slim

@@ -131,6 +131,7 @@ public sealed class PdfProcessingProfile : IDisposable
             }
             hash.AppendData(Encoding.UTF8.GetBytes(config.ToString().Replace(new Uri(System.IO.Path.GetDirectoryName(BundledFopRuntime.ConfigurationPath)! + System.IO.Path.DirectorySeparatorChar).AbsoluteUri, "bundled/", StringComparison.Ordinal)));
             hash.AppendData(Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(xmlOptions)));
+            hash.AppendData(Encoding.UTF8.GetBytes(xmlOptions.Altova2012 is null ? "altova:disabled" : Altova2012Options.ImplementationVersion + ";optimizer:0;"));
             hash.AppendData(Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(rendererOptions)));
             for (int i = 0; i < faces.Length; i++)
             {

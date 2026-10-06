@@ -40,6 +40,7 @@ public sealed class SaxonFoTransformer : IReportingXsltFoTransformer, IDisposabl
     public SaxonFoTransformer(XmlFoOptions? options = null)
     {
         this.options = options ?? new();
+        this.options.Altova2012?.Validate();
         if (this.options.MaxConcurrency <= 0 || this.options.MaxInputBytes <= 0 || this.options.MaxOutputBytes <= 0 || this.options.MemoryBufferThresholdBytes < 0 || this.options.MaxStylesheetBytes <= 0 || this.options.TemplateCacheEntries < 0 || this.options.TemplateCacheBytes < 0 || this.options.TemplateCacheIdleTime <= TimeSpan.Zero)
         {
             throw new ArgumentOutOfRangeException(nameof(options));
@@ -149,19 +150,9 @@ public sealed class SaxonFoTransformer : IReportingXsltFoTransformer, IDisposabl
             token.ThrowIfCancellationRequested();
             temporary = AtomicOutput.Prepare(foPath, new[] { request.Xml.FilePath, request.Xslt.FilePath }.OfType<string>().ToArray());
             Processor processor = stylesheet.Executable.Processor;
+            using AltovaJobContext? compatibility = options.Altova2012 is null ? null : new AltovaJobContext(options.Altova2012);
             stage = ConversionStage.Transform;
-            using XmlReader input = OpenXml(xml);
-            XsltTransformer transformer = stylesheet.Executable.Load();
-            transformer.ErrorReporter = diagnostics.Report;
-            transformer.TraceFunctionDestination = TextWriter.Null;
-            transformer.MessageListener = _ => { };
-            foreach (XsltParameter parameter in request.Parameters)
-            {
-                transformer.SetParameter(new QName(parameter.Name), new XdmAtomicValue(parameter.LexicalValue,
-                    XdmAtomicType.BuiltInAtomicType(new QName("http://www.w3.org/2001/XMLSchema", parameter.Type))));
-            }
-            transformer.InitialContextNode = processor.NewDocumentBuilder().Build(input);
-            transformer.ResultDocumentHandler = (_, _) => throw new XmlException("Secondary output documents are disabled.");
+            XsltTransformer transformer = NewTransformer(request, xml, stylesheet, diagnostics);
             using (var output = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
             using (var limited = new LimitedWriteStream(output, options.MaxOutputBytes))
             {
@@ -206,6 +197,70 @@ public sealed class SaxonFoTransformer : IReportingXsltFoTransformer, IDisposabl
         }
     }
 
+    /// <summary><para>Prepares the same job-local Saxon execution for FO and XDM validation.</para><para>Подготавливает одинаковое выполнение Saxon для FO и проверки XDM.</para></summary>
+    /// <param name="request"><para>Job request.</para><para>Запрос задания.</para></param>
+    /// <param name="xml"><para>Bounded input snapshot.</para><para>Ограниченный снимок входа.</para></param>
+    /// <param name="stylesheet"><para>Shared executable.</para><para>Общий шаблон.</para></param>
+    /// <param name="diagnostics"><para>Job-local collector.</para><para>Сборщик задания.</para></param>
+    /// <returns><para>A new transformer.</para><para>Новый преобразователь.</para></returns>
+    private XsltTransformer NewTransformer(ConversionRequest request, PreparedXmlSource xml, CompiledStylesheet stylesheet, SaxonDiagnosticCollector diagnostics)
+    {
+        using XmlReader input = OpenXml(xml);
+        XsltTransformer transformer = stylesheet.Executable.Load();
+        transformer.ErrorReporter = diagnostics.Report;
+        transformer.TraceFunctionDestination = TextWriter.Null;
+        transformer.MessageListener = _ => { };
+        foreach (XsltParameter parameter in request.Parameters)
+        {
+            transformer.SetParameter(new QName(parameter.Name), new XdmAtomicValue(parameter.LexicalValue,
+                XdmAtomicType.BuiltInAtomicType(new QName("http://www.w3.org/2001/XMLSchema", parameter.Type))));
+        }
+        transformer.InitialContextNode = stylesheet.Executable.Processor.NewDocumentBuilder().Build(input);
+        transformer.ResultDocumentHandler = (_, _) => throw new XmlException("Secondary output documents are disabled.");
+        return transformer;
+    }
+
+    /// <summary><para>Validation-only XDM execution using the application's snapshot, cache and resource policy.</para><para>Выполнение XDM для стенда со снимком, кэшем и политикой ресурсов приложения.</para></summary>
+    /// <param name="request"><para>Validation request.</para><para>Запрос проверки.</para></param>
+    /// <param name="token"><para>Cancellation token.</para><para>Токен отмены.</para></param>
+    /// <returns><para>Raw XDM results before serialization.</para><para>Результаты XDM до сериализации.</para></returns>
+    internal async Task<XdmValue> TransformToXdmAsync(ConversionRequest request, CancellationToken token = default)
+    {
+        await slots.WaitAsync(token).ConfigureAwait(false);
+        ConversionStage stage = ConversionStage.Input;
+        var diagnostics = new SaxonDiagnosticCollector(ConversionStage.Transform);
+        try
+        {
+            long inputLimit = Math.Min(options.MaxInputBytes, request.Settings.MaxInputBytes ?? options.MaxInputBytes);
+            using PreparedXmlSource xml = await PreparedXmlSource.CreateAsync(request.Xml, inputLimit, options.MemoryBufferThresholdBytes, token).ConfigureAwait(false);
+            using PreparedXmlSource xslt = await PreparedXmlSource.CreateAsync(request.Xslt, options.MaxStylesheetBytes, options.MemoryBufferThresholdBytes, token).ConfigureAwait(false);
+            stage = ConversionStage.Compile;
+            string? root = xslt.BaseUri is null ? null : Path.GetDirectoryName(xslt.BaseUri.LocalPath);
+            var snapshot = StylesheetSnapshot.Create(xslt, request.Resources ?? new LocalResourcePolicy(root is null ? [] : [root]), options, token);
+            CompiledStylesheet stylesheet = await cache.GetAsync(snapshot, token).ConfigureAwait(false);
+            stage = ConversionStage.Transform;
+            return await Task.Run(() =>
+            {
+                token.ThrowIfCancellationRequested();
+                using AltovaJobContext? compatibility = options.Altova2012 is null ? null : new AltovaJobContext(options.Altova2012);
+                XsltTransformer transformer = NewTransformer(request, xml, stylesheet, diagnostics);
+                var destination = new RawDestination();
+                transformer.Run(destination);
+                token.ThrowIfCancellationRequested();
+                return destination.XdmValue;
+            }, CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (ConversionException) { throw; }
+        catch (Exception error)
+        {
+            throw new ConversionException(stage, "XDM validation failed.", error) { Diagnostics = diagnostics.Snapshot() };
+        }
+        finally
+        {
+            slots.Release();
+        }
+    }
 
     /// <summary>
     /// <para>Executes OpenXml as part of the SaxonFoTransformer conversion workflow.</para>

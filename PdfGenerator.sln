@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdfGenerator.Benchmarks", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdfGenerator.Documentation", "eng\PdfGenerator.Documentation\PdfGenerator.Documentation.csproj", "{120F1482-95D5-440A-BA03-B83D5B3C61A9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdfGenerator.TemplateValidation", "eng\PdfGenerator.TemplateValidation\PdfGenerator.TemplateValidation.csproj", "{08140468-D839-45EA-85D4-A63056BD3063}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +72,10 @@ Global
 		{120F1482-95D5-440A-BA03-B83D5B3C61A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{120F1482-95D5-440A-BA03-B83D5B3C61A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{120F1482-95D5-440A-BA03-B83D5B3C61A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08140468-D839-45EA-85D4-A63056BD3063}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08140468-D839-45EA-85D4-A63056BD3063}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08140468-D839-45EA-85D4-A63056BD3063}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08140468-D839-45EA-85D4-A63056BD3063}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A6843039-FBDE-4188-B128-DA9DD934F7E7} = {C27EB4DA-0D8D-4D0B-9023-5D1832270B28}
@@ -80,5 +86,6 @@ Global
 		{D74213AE-C939-4FDA-9733-1AA3793E866F} = {478ACF5D-97A2-487B-80DB-8C8B0C6808AE}
 		{D4302062-9728-41D6-B027-9964DC867242} = {68B860DC-4784-4DA1-896F-85F9BE03D7C6}
 		{120F1482-95D5-440A-BA03-B83D5B3C61A9} = {68B860DC-4784-4DA1-896F-85F9BE03D7C6}
+		{08140468-D839-45EA-85D4-A63056BD3063} = {68B860DC-4784-4DA1-896F-85F9BE03D7C6}
 	EndGlobalSection
 EndGlobal

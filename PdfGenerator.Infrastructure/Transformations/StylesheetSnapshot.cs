@@ -87,6 +87,7 @@ internal sealed class StylesheetSnapshot : IDisposable
             using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             hash.AppendData(Encoding.UTF8.GetBytes(typeof(Saxon.Api.Processor).Assembly.FullName!));
             hash.AppendData("external-functions:false;pre-evaluate-doc:false;collections:false;runtime-resources:false;policy-v1"u8);
+            hash.AppendData(Encoding.UTF8.GetBytes(options.Altova2012 is null ? "altova:disabled" : Altova2012Options.ImplementationVersion + ";optimizer:0;" + System.Text.Json.JsonSerializer.Serialize(options.Altova2012)));
             hash.AppendData(Encoding.UTF8.GetBytes(snapshot.BaseUri.AbsoluteUri));
             foreach ((string uri, string path) in snapshot.Modules.OrderBy(p => p.Key, StringComparer.Ordinal))
             {

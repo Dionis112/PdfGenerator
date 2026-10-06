@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "namespaceUri": "http://www.altova.com/xslt-extensions",
   "baselineStatus": "not-captured",
   "profiles": {
@@ -37,7 +37,10 @@
       "result": "xml",
       "functions": [
         "distinct-nodes#1"
-      ]
+      ],
+      "verificationLevel": "documentation-only",
+      "originalBaseline": null,
+      "expectation": "expected-properties.json#01-distinct-nodes"
     },
     {
       "id": "02-evaluate",
@@ -49,7 +52,10 @@
         "evaluate#1",
         "evaluate#2",
         "evaluate#4"
-      ]
+      ],
+      "verificationLevel": "documentation-only",
+      "originalBaseline": null,
+      "expectation": "expected-properties.json#02-evaluate"
     },
     {
       "id": "03-encode-for-rtf",
@@ -59,7 +65,10 @@
       "result": "xml",
       "functions": [
         "encode-for-rtf#3"
-      ]
+      ],
+      "verificationLevel": "documentation-only",
+      "originalBaseline": null,
+      "expectation": "expected-properties.json#03-encode-for-rtf"
     },
     {
       "id": "04-auto-number",
@@ -70,7 +79,10 @@
       "functions": [
         "generate-auto-number#4",
         "reset-auto-number#1"
-      ]
+      ],
+      "verificationLevel": "documentation-only",
+      "originalBaseline": null,
+      "expectation": "expected-properties.json#04-auto-number"
     },
     {
       "id": "05-temp-folder",
@@ -80,7 +92,10 @@
       "result": "environment",
       "functions": [
         "get-temp-folder#0"
-      ]
+      ],
+      "verificationLevel": "documentation-only",
+      "originalBaseline": null,
+      "expectation": "expected-properties.json#05-temp-folder"
     },
     {
       "id": "06-invoice-fo",
@@ -91,7 +106,10 @@
       "functions": [
         "evaluate#1",
         "distinct-nodes#1"
-      ]
+      ],
+      "verificationLevel": "documentation-only",
+      "originalBaseline": null,
+      "expectation": "expected-properties.json#06-invoice-fo"
     },
     {
       "id": "charts/07-series",
@@ -105,7 +123,9 @@
         "create-chart#2",
         "generate-chart-image#4",
         "generate-chart-image#5"
-      ]
+      ],
+      "verificationLevel": "deferred",
+      "originalBaseline": null
     },
     {
       "id": "charts/08-rows",
@@ -119,7 +139,9 @@
         "create-chart-data-series-from-rows#2",
         "create-chart#2",
         "generate-chart-image#5"
-      ]
+      ],
+      "verificationLevel": "deferred",
+      "originalBaseline": null
     },
     {
       "id": "modern/09-date-arithmetic",
@@ -131,7 +153,9 @@
         "add-years-to-date#2",
         "add-months-to-date#2",
         "add-days-to-date#2"
-      ]
+      ],
+      "verificationLevel": "deferred",
+      "originalBaseline": null
     },
     {
       "id": "modern/10-datetime-arithmetic",
@@ -146,7 +170,9 @@
         "add-hours-to-dateTime#2",
         "add-minutes-to-dateTime#2",
         "add-seconds-to-dateTime#2"
-      ]
+      ],
+      "verificationLevel": "deferred",
+      "originalBaseline": null
     },
     {
       "id": "modern/11-time-arithmetic",
@@ -158,7 +184,9 @@
         "add-hours-to-time#2",
         "add-minutes-to-time#2",
         "add-seconds-to-time#2"
-      ]
+      ],
+      "verificationLevel": "deferred",
+      "originalBaseline": null
     },
     {
       "id": "modern/12-build-values",
@@ -172,7 +200,9 @@
         "build-time#4",
         "build-duration#2",
         "build-duration#4"
-      ]
+      ],
+      "verificationLevel": "deferred",
+      "originalBaseline": null
     },
     {
       "id": "modern/13-calendar",
@@ -187,7 +217,9 @@
         "weeknumber-from-date#2",
         "weeknumber-from-dateTime#1",
         "weeknumber-from-dateTime#2"
-      ]
+      ],
+      "verificationLevel": "deferred",
+      "originalBaseline": null
     },
     {
       "id": "negative/14-evaluate-syntax",
@@ -197,7 +229,10 @@
       "result": "dynamic-error",
       "functions": [
         "evaluate#1"
-      ]
+      ],
+      "verificationLevel": "documentation-only",
+      "originalBaseline": null,
+      "expectation": "expected-properties.json#negative/14-evaluate-syntax"
     },
     {
       "id": "negative/15-evaluate-missing-parameter",
@@ -207,7 +242,10 @@
       "result": "dynamic-error",
       "functions": [
         "evaluate#1"
-      ]
+      ],
+      "verificationLevel": "documentation-only",
+      "originalBaseline": null,
+      "expectation": "expected-properties.json#negative/15-evaluate-missing-parameter"
     },
     {
       "id": "negative/16-evaluate-unknown-prefix",
@@ -217,7 +255,10 @@
       "result": "dynamic-error",
       "functions": [
         "evaluate#1"
-      ]
+      ],
+      "verificationLevel": "documentation-only",
+      "originalBaseline": null,
+      "expectation": "expected-properties.json#negative/16-evaluate-unknown-prefix"
     },
     {
       "id": "charts/17-config-from-xml",
@@ -230,7 +271,9 @@
         "generate-chart-image#5"
       ],
       "input": "charts/17-config-from-xml.xml",
-      "stylesheet": "charts/17-config-from-xml.xsl"
+      "stylesheet": "charts/17-config-from-xml.xsl",
+      "verificationLevel": "deferred",
+      "originalBaseline": null
     },
     {
       "id": "charts/18-multi-layer",
@@ -245,7 +288,9 @@
         "generate-chart-image#5"
       ],
       "input": "charts/18-multi-layer.xml",
-      "stylesheet": "charts/18-multi-layer.xsl"
+      "stylesheet": "charts/18-multi-layer.xsl",
+      "verificationLevel": "deferred",
+      "originalBaseline": null
     },
     {
       "id": "charts/19-save-image",
@@ -265,7 +310,9 @@
         "Writes altova-19-default.img and altova-19-explicit.png in the supplied existing output directory; use a fresh directory"
       ],
       "input": "charts/19-save-image.xml",
-      "stylesheet": "charts/19-save-image.xsl"
+      "stylesheet": "charts/19-save-image.xsl",
+      "verificationLevel": "deferred",
+      "originalBaseline": null
     },
     {
       "id": "xbrl/20-labels",
@@ -279,7 +326,9 @@
         "xbrl/taxonomy/labels.xml"
       ],
       "input": "xbrl/20-labels.xml",
-      "stylesheet": "xbrl/20-labels.xsl"
+      "stylesheet": "xbrl/20-labels.xsl",
+      "verificationLevel": "deferred",
+      "originalBaseline": null
     },
     {
       "id": "xbrl/21-footnotes",
@@ -294,7 +343,9 @@
       ],
       "note": "The 2012 manual inconsistently spells the signature footnotes; the fixture uses xbrl-footnotes from its function list. Verify the QName on the target engine.",
       "input": "xbrl/21-footnotes.xml",
-      "stylesheet": "xbrl/21-footnotes.xsl"
+      "stylesheet": "xbrl/21-footnotes.xsl",
+      "verificationLevel": "deferred",
+      "originalBaseline": null
     }
   ]
 }

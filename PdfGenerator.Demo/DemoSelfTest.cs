@@ -56,6 +56,7 @@ internal static class DemoSelfTest
 
         if (pdf)
         {
+            await VerifyAltova2012Async(renderer, data, output);
             string target = Path.Combine(output, "result.pdf");
             await new XmlPdfGenerator(transformer, renderer).GenerateFileAsync(Path.Combine(data, "basic/input.xml"), xslt, target);
             await VerifyRequestApiAsync(transformer, renderer, data, xslt, output);
@@ -135,6 +136,42 @@ internal static class DemoSelfTest
         Console.WriteLine($"SELF-TEST PASS: FO{(pdf ? " + PDF + request/stream API + Cyrillic text + PNG without ICC (with alpha) + SVG" : "")}; output={output}");
     }
 
+    /// <summary><para>Verifies the packaged Altova profile and worker with the bank fixture.</para><para>Проверяет упакованный профиль Altova и worker на банковском примере.</para></summary>
+    /// <param name="renderer"><para>Bundled renderer.</para><para>Встроенный рендерер.</para></param>
+    /// <param name="data"><para>Fixture root.</para><para>Корень примеров.</para></param>
+    /// <param name="output"><para>Output directory.</para><para>Каталог результатов.</para></param>
+    /// <returns><para>Consumer validation task.</para><para>Задача проверки потребителя.</para></returns>
+    private static async Task VerifyAltova2012Async(IFoPdfRenderer renderer, string data, string output)
+    {
+        var options = new XmlFoOptions { Altova2012 = new() };
+        using var transformer = new SaxonFoTransformer(options);
+        string stylesheet = Path.Combine(data, "bank-signing/bank-altova-2012.xsl");
+        var request = new ConversionRequest(XmlSource.FromFile(Path.Combine(data, "bank-signing/input.xml")), XmlSource.FromFile(stylesheet), resources: new LocalResourcePolicy([data]));
+        string intermediate = Path.Combine(output, "altova2012-bank.fo");
+        await transformer.TransformAsync(request, intermediate);
+        XNamespace fo = "http://www.w3.org/1999/XSL/Format";
+        XElement[] pages = XDocument.Load(intermediate).Root!.Elements(fo + "page-sequence").ToArray();
+        XElement[] rows = pages[1].Descendants(fo + "table-body").Elements(fo + "table-row").ToArray();
+        if (pages.Length != 3 || rows.Length != 13 || !rows.Take(12).Select(r => r.Elements(fo + "table-cell").First().Value).SequenceEqual(Enumerable.Range(1, 12).Select(i => i.ToString(System.Globalization.CultureInfo.InvariantCulture))) ||
+            !pages[2].Value.Contains("Итого отдельно выбранные услуги: 1 500,00", StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException("Packaged Altova profile changed bank calculations or numbering.");
+        }
+        ConversionResult result = await new XmlPdfGenerator(transformer, renderer).GenerateAsync(request, Path.Combine(output, "altova2012-bank.pdf"));
+        if (result.PageCount != 3)
+        {
+            throw new InvalidOperationException("Packaged Altova profile must produce three pages.");
+        }
+        await using var worker = new WorkerXmlPdfGenerator(xmlOptions: options);
+        for (int repeat = 0; repeat < 2; repeat++)
+        {
+            using var stream = new MemoryStream();
+            if ((await worker.GenerateAsync(request, stream)).PageCount != 3)
+            {
+                throw new InvalidOperationException("Packaged Altova worker must produce three pages.");
+            }
+        }
+    }
 
     /// <summary>
     /// <para>Executes VerifyRequestApiAsync as part of the DemoSelfTest conversion workflow.</para>

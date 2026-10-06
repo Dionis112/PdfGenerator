@@ -7,6 +7,11 @@ namespace PdfGenerator;
 /// </summary>
 public sealed record XmlFoOptions
 {
+    /// <summary><para>Optional AltovaXML 2012 general-function compatibility; null disables all Altova extensions.</para><para>Необязательная совместимость общих функций AltovaXML 2012; null отключает расширения Altova.</para></summary>
+    public Altova2012Options? Altova2012
+    {
+        get; init;
+    }
 
     /// <summary>
     /// <para>Maximum simultaneous synchronous XSLT operations; a canceled operation retains its slot until the engine finishes.</para>

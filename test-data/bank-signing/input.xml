@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bank-document id="DEMO-BNK-2026-001" issued="2026-10-06">
+  <bank name="Учебный Банк" office="Демонстрационный офис № 01"/>
+  <client name="Тестов Алексей Сергеевич" birth-date="1990-04-18" passport="00 00 000000" phone="+7 (000) 000-00-00" address="Учебный город, Примерная улица, дом 1"/>
+  <loan principal="1200000.00" annual-rate="12.00" months="12" currency="RUB"/>
+  <services>
+    <service selected="true" amount="1200.00">Демонстрационная услуга А</service>
+    <service selected="true" amount="300.00">Демонстрационная услуга Б</service>
+    <service selected="false" amount="900.00">Не выбранная услуга</service>
+  </services>
+  <clauses>
+    <clause>Данные клиента сверены с входным XML.</clause>
+    <clause>График платежей включён в комплект документов.</clause>
+    <clause>Данные клиента сверены с входным XML.</clause>
+    <clause>Состав выбранных услуг показан отдельно от графика.</clause>
+  </clauses>
+</bank-document>
